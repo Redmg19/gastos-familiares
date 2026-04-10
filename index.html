@@ -3,80 +3,79 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Finanzas PRO · José & Desi</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>Finanzas · José & Desi</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0f0f0f; --surf: #1a1a1a; --bord: #2e2e2e;
-    --jose: #e8c97d; --desi: #7db8e8; --text: #f0ede8; --muted: #888;
-    --accent: #2ecc71; --danger: #e87d7d;
-  }
-  body.light-mode {
-    --bg: #f2f2f7; --surf: #ffffff; --bord: #d1d1d6;
-    --text: #1c1c1e; --muted: #8e8e93;
+    --bg: #0a0a0a; --surf: #161616; --bord: #262626;
+    --jose: #e8c97d; --desi: #7db8e8; --text: #f0ede8; --muted: #777;
+    --accent: #2ecc71; --danger: #e87d7d; --warn: #f39c12;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; margin: 0; padding-bottom: 90px; transition: 0.3s; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; margin: 0; padding-bottom: 90px; }
   
-  nav { position: fixed; bottom: 0; width: 100%; background: var(--surf); border-top: 1px solid var(--bord); display: grid; grid-template-columns: 1fr 1fr 1fr; height: 75px; z-index: 100; }
-  .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); font-size: 11px; cursor: pointer; }
+  nav { position: fixed; bottom: 0; width: 100%; background: var(--surf); border-top: 1px solid var(--bord); display: grid; grid-template-columns: 1fr 1fr; height: 75px; z-index: 100; }
+  .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); font-size: 12px; cursor: pointer; }
   .nav-item.active { color: var(--desi); font-weight: bold; }
   
   .view { display: none; padding: 20px; animation: fadeIn 0.2s; }
   .view.active { display: block; }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-  .card { background: var(--surf); border: 1px solid var(--bord); border-radius: 20px; padding: 20px; margin-bottom: 20px; }
-  input, select { background: var(--bg); border: 1px solid var(--bord); border-radius: 12px; padding: 14px; color: var(--text); width: 100%; margin-bottom: 12px; font-size: 16px; }
+  .card { background: var(--surf); border: 1px solid var(--bord); border-radius: 20px; padding: 20px; margin-bottom: 15px; }
+  input, select { background: var(--bg); border: 1px solid var(--bord); border-radius: 12px; padding: 14px; color: var(--text); width: 100%; margin-bottom: 12px; font-size: 16px; outline: none; }
   
-  .btn-group { display: flex; gap: 10px; margin-bottom: 15px; }
-  .btn-opt { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid var(--bord); background: var(--surf); color: var(--text); font-weight: bold; cursor: pointer; transition: 0.2s; }
-  
-  /* Corregido: Resaltado de botones */
+  .btn-group { display: flex; gap: 8px; margin-bottom: 15px; }
+  .btn-opt { flex: 1; padding: 14px; border-radius: 12px; border: 1px solid var(--bord); background: var(--surf); color: var(--text); font-weight: bold; cursor: pointer; font-size: 13px; }
   .btn-opt.active { background: var(--text); color: var(--bg); }
   
-  .btn-save { background: var(--accent); color: #000; border: none; padding: 16px; width: 100%; border-radius: 15px; font-weight: bold; font-size: 16px; }
+  .btn-save { background: var(--accent); color: #000; border: none; padding: 18px; width: 100%; border-radius: 15px; font-weight: 800; font-size: 16px; }
 
-  .item { background: var(--surf); padding: 15px; border-radius: 15px; margin-bottom: 8px; border-left: 5px solid var(--muted); cursor: pointer; }
+  /* Barra de Progreso Inteligente */
+  .prog-bg { height: 10px; background: #222; border-radius: 5px; overflow: hidden; margin: 15px 0 5px; }
+  .prog-fill { height: 100%; width: 0%; transition: 1s; }
+
+  /* Historial */
+  .item { background: var(--surf); padding: 15px; border-radius: 16px; margin-bottom: 8px; border-left: 5px solid var(--muted); cursor: pointer; }
   .item.jose { border-left-color: var(--jose); }
   .item.desi { border-left-color: var(--desi); }
-  .item-details { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--bord); font-size: 12px; color: var(--muted); }
+  .item-details { display: none; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--bord); font-size: 12px; color: var(--muted); }
   .item.open .item-details { display: block; }
-
-  .blur-text { transition: 0.3s; }
-  .privacy-active .blur-text { filter: blur(8px); }
-  #config-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
 </style>
 </head>
 <body>
 
-<div id="view-home" class="view active">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-    <h2 style="margin:0">Resumen</h2>
-    <button onclick="document.getElementById('config-overlay').style.display='flex'" style="background:none; border:none; font-size:24px;">⚙️</button>
+<div id="view-main" class="view active">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+    <select id="month-filter" onchange="sync()" style="width: auto; margin:0; padding:8px 12px; font-size:14px; background:var(--surf)"></select>
+    <div style="font-size: 10px; color: var(--muted)">ABRIL 2026</div>
   </div>
-  <select id="month-filter" onchange="sync()"></select>
-  <div class="card" style="text-align:center">
-    <span style="font-size:11px; color:var(--muted); letter-spacing:1px">BALANCE NETO</span>
-    <h1 id="neto-total" class="blur-text" style="margin:10px 0; font-size:38px">$0</h1>
-  </div>
-  <div class="card"><canvas id="expenseChart"></canvas></div>
-</div>
 
-<div id="view-add" class="view">
-  <h2>Registrar</h2>
-  <div class="btn-group">
-    <button id="type-g" class="btn-opt active" onclick="switchReg('g')">GASTO</button>
-    <button id="type-i" class="btn-opt" onclick="switchReg('i')">INGRESO</button>
+  <div class="card" style="text-align:center;">
+    <span style="font-size:11px; color:var(--muted); letter-spacing:1px;">GANANCIA NETO (MES)</span>
+    <h1 id="neto-total" style="margin:8px 0; font-size:42px;">$0</h1>
+    <div style="display:flex; justify-content:space-between; font-size:12px; margin-top:10px;">
+        <span>Gastos: <b id="total-gastos">$0</b></span>
+        <span>Meta: <b>$50,000</b></span>
+    </div>
+    <div class="prog-bg"><div id="prog-bar" class="prog-fill"></div></div>
+    <div id="prog-perc" style="font-size:10px; color:var(--muted); text-align:right">0%</div>
   </div>
+
+  <div class="btn-group">
+    <button id="type-g" class="btn-opt active" onclick="switchReg('g')">GASTO ↘</button>
+    <button id="type-i" class="btn-opt" onclick="switchReg('i')">INGRESO ↗</button>
+  </div>
+
   <div class="card">
     <div class="btn-group">
       <button id="p-jose" class="btn-opt active" onclick="setPerson('jose')">JOSÉ</button>
       <button id="p-desi" class="btn-opt" onclick="setPerson('desi')">DESI</button>
     </div>
-    <input type="text" id="reg-desc" placeholder="¿Qué fue?">
-    <input type="number" id="reg-amount" placeholder="Monto $" inputmode="decimal">
+    <input type="text" id="reg-desc" placeholder="¿En qué se gastó?">
+    <input type="number" id="reg-amount" placeholder="0.00" inputmode="decimal">
     <select id="reg-cat">
       <option value="🍔 Comida Calle">🍔 Comida Calle</option>
       <option value="🛒 Súper">🛒 Súper</option>
@@ -88,35 +87,26 @@
     </select>
     <button id="save-btn" class="btn-save" onclick="save()">GUARDAR REGISTRO</button>
   </div>
-  <h4 style="color:var(--muted); margin-bottom:10px">RECIENTES</h4>
-  <div id="mini-list"></div>
 </div>
 
 <div id="view-list" class="view">
-  <h2>Historial</h2>
-  <input type="text" id="search" placeholder="🔍 Buscar..." oninput="render()">
-  <div id="full-list" style="margin-top:15px"></div>
-</div>
-
-<div id="config-overlay" onclick="this.style.display='none'">
-  <div class="card" style="width:100%; max-width:350px" onclick="event.stopPropagation()">
-    <h3>Configuración</h3>
-    <button class="btn-opt" style="width:100%; margin-bottom:10px" onclick="toggleTheme()">🌓 Modo Día/Noche</button>
-    <button class="btn-opt" style="width:100%; margin-bottom:10px" onclick="togglePrivacy()">👁️ Modo Privacidad</button>
-    <button class="btn-opt" style="width:100%; color:var(--danger)" onclick="document.getElementById('config-overlay').style.display='none'">CERRAR</button>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+    <h2 style="margin:0">Historial</h2>
+    <button onclick="exportPDF()" style="background:var(--surf); color:var(--text); border:1px solid var(--bord); padding:8px 12px; border-radius:10px; font-size:12px">📄 PDF</button>
   </div>
+  <input type="text" id="search" placeholder="🔍 Buscar..." oninput="render()">
+  <div id="full-list"></div>
 </div>
 
 <nav>
-  <div class="nav-item active" id="nav-home" onclick="switchView('home')">🏠<br>Inicio</div>
-  <div class="nav-item" id="nav-add" onclick="switchView('add')">➕<br>Añadir</div>
-  <div class="nav-item" id="nav-list" onclick="switchView('list')">📜<br>Lista</div>
+  <div class="nav-item active" id="nav-main" onclick="switchView('main')">➕<br>Registrar</div>
+  <div class="nav-item" id="nav-list" onclick="switchView('list')">📜<br>Historial</div>
 </nav>
 
 <script>
   const URL = "https://script.google.com/macros/s/AKfycbyBhXZ8n1O6fyXh4EGNXIJN8-QixT7pWtSqD9imWc81Z6sSNLPefNyidmT5E_EMCUz4/exec";
   let data = { gastos: [], ingresos: [] };
-  let user = 'jose', regType = 'g', myChart = null;
+  let user = 'jose', regType = 'g';
 
   const mSelect = document.getElementById('month-filter');
   ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'].forEach((m,i)=>{
@@ -137,50 +127,46 @@
     const m = parseInt(mSelect.value);
     const filter = (l) => l.filter(x => {
       if(!x.date) return false;
-      const parts = x.date.split('/');
-      return (parseInt(parts[1]) - 1) === m;
+      return (parseInt(x.date.split('/')[1]) - 1) === m;
     });
 
     const fG = filter(data.gastos), fI = filter(data.ingresos);
     const sum = (l) => l.reduce((a,b) => a + parseFloat(b.amount || 0), 0);
     const tG = sum(fG), tI = sum(fI);
-    document.getElementById('neto-total').textContent = `$${(tI - tG).toLocaleString()}`;
     
-    // Gráfico
-    const catTotals = {};
-    fG.forEach(x => { let c = x.cat || "Otros"; catTotals[c] = (catTotals[c] || 0) + parseFloat(x.amount || 0); });
-    if(myChart) myChart.destroy();
-    myChart = new Chart(document.getElementById('expenseChart'), {
-      type: 'doughnut',
-      data: {
-        labels: Object.keys(catTotals),
-        datasets: [{ data: Object.values(catTotals), backgroundColor: ['#e8c97d','#7db8e8','#2ecc71','#e87d7d','#bb86fc','#ff9f43'] }]
-      },
-      options: { plugins: { legend: { position: 'bottom', labels: { color: getComputedStyle(document.body).getPropertyValue('--text') } } } }
-    });
+    // Balance Neto (Lo que ganaron en el mes)
+    document.getElementById('neto-total').textContent = `$${(tI - tG).toLocaleString()}`;
+    document.getElementById('total-gastos').textContent = `$${tG.toLocaleString()}`;
+    
+    // Barra de Progreso Semáforo
+    const perc = Math.min((tG / 50000) * 100, 100);
+    const bar = document.getElementById('prog-bar');
+    bar.style.width = perc + '%';
+    document.getElementById('prog-perc').textContent = Math.round(perc) + '% de la meta';
+    
+    if(tG >= 45000) bar.style.background = 'var(--danger)';
+    else if(tG >= 40000) bar.style.background = 'var(--warn)';
+    else bar.style.background = 'var(--accent)';
 
-    // Listas
+    // Historial
     const search = document.getElementById('search').value.toLowerCase();
     const all = [...fG.map(x=>({...x, t:'g'})), ...fI.map(x=>({...x, t:'i'}))].sort((a,b)=>b.id - a.id);
     
-    const html = (items) => items.filter(x=>(x.desc||x.concept||"").toLowerCase().includes(search)).map(x=>`
+    document.getElementById('full-list').innerHTML = all.filter(x=>(x.desc||x.concept||"").toLowerCase().includes(search)).map(x=>`
       <div class="item ${x.person.toLowerCase()}" onclick="this.classList.toggle('open')">
         <div style="display:flex; justify-content:space-between; align-items:center">
           <div>
-            <b>${x.concept || x.desc || "Sin nombre"}</b>
-            <span style="font-size:10px; color:var(--muted)">${x.cat || 'Ingreso'} · ${x.person.toUpperCase()}</span>
+            <b>${x.t==='i'?'↗':'↘'} ${x.concept || x.desc}</b>
+            <span style="font-size:11px; color:var(--muted)">${x.cat || 'INGRESO'} · ${x.person.toUpperCase()}</span>
           </div>
-          <span style="font-family:'DM Mono'; font-weight:bold; color:${x.t==='i'?'var(--accent)':'var(--text)'}">${x.t==='i'?'+':''}$${parseFloat(x.amount).toLocaleString()}</span>
+          <span style="font-family:'DM Mono'; font-weight:bold; font-size:16px; color:${x.t==='i'?'var(--accent)':'var(--text)'}">${x.t==='i'?'+':''}$${parseFloat(x.amount).toLocaleString()}</span>
         </div>
         <div class="item-details">
-          📅 Fecha: ${x.date} <br> ⏰ Hora: ${x.time || 'N/A'} <br>
-          <button onclick="deleteRow('${x.id}', ${x.t==='i'})" style="color:var(--danger); border:none; background:none; padding:10px 0; font-weight:bold">ELIMINAR</button>
+          🗓️ ${x.date} a las ${x.time || '--:--'} <br>
+          <button onclick="deleteRow('${x.id}', ${x.t==='i'})" style="color:var(--danger); border:1px solid var(--danger); background:none; padding:8px; border-radius:8px; margin-top:10px; width:100%">ELIMINAR</button>
         </div>
       </div>
     `).join('');
-
-    document.getElementById('full-list').innerHTML = html(all);
-    document.getElementById('mini-list').innerHTML = html(all.slice(0, 5));
   }
 
   function switchView(v) {
@@ -208,7 +194,7 @@
     const amount = document.getElementById('reg-amount').value;
     if(!desc || !amount) return;
     const btn = document.getElementById('save-btn');
-    btn.disabled = true; btn.textContent = "GUARDANDO...";
+    btn.disabled = true; btn.textContent = "ENVIANDO...";
     
     const body = {
       action: regType==='g'?'add':'add_ingreso',
@@ -225,15 +211,20 @@
   }
 
   async function deleteRow(id, isIng) {
-    if(confirm("¿Borrar este registro?")) {
+    if(confirm("¿Borrar?")) {
       await fetch(URL, { method:'POST', mode:'no-cors', body: JSON.stringify({action:'delete', id, isIngreso: isIng}) });
       setTimeout(sync, 1000);
     }
   }
 
-  function toggleTheme() { document.body.classList.toggle('light-mode'); render(); }
-  function togglePrivacy() { document.body.classList.toggle('privacy-active'); }
-  
+  function exportPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const m = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][mSelect.value];
+    doc.text(`Reporte de Finanzas - ${m} 2026`, 14, 20);
+    doc.save(`Finanzas_${m}.pdf`);
+  }
+
   sync();
   setInterval(sync, 30000);
 </script>
