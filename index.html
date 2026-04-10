@@ -31,17 +31,17 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; padding-bottom: 40px; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; padding-bottom: 40px; min-height: 100vh; }
 
   header { padding: 28px 20px 10px; display: flex; justify-content: space-between; align-items: flex-start; }
   .app-title { font-family: 'DM Serif Display', serif; font-size: 28px; line-height: 1; }
-  .month-selector { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 5px 10px; border-radius: 8px; font-size: 13px; }
+  .month-selector { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 5px 10px; border-radius: 8px; font-size: 13px; outline: none; }
 
   /* PRESUPUESTO */
   .budget-container { margin: 10px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
   .budget-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; font-weight: 500; }
   .budget-bar-bg { background: var(--bg); height: 8px; border-radius: 4px; overflow: hidden; }
-  .budget-bar-fill { height: 100%; width: 0%; transition: width 0.5s, background-color 0.5s; }
+  .budget-bar-fill { height: 100%; width: 0%; transition: width 0.8s ease, background-color 0.5s; }
 
   /* TOTALS */
   .totals { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 20px; }
@@ -52,28 +52,34 @@
 
   /* INPUT PANEL */
   .input-panel { margin: 16px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
-  .type-toggle { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin: 12px 0; }
-  .type-btn { background: var(--bg); border: 1px solid var(--border); color: var(--muted); padding: 8px; border-radius: 8px; font-size: 10px; cursor: pointer; text-transform: uppercase; }
-  .type-btn.active { background: var(--surface2); color: var(--text); border-color: var(--muted); }
-
   .person-toggle { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg); border-radius: 10px; padding: 3px; margin-bottom: 12px; }
-  .person-btn { border: none; border-radius: 8px; padding: 10px; font-size: 13px; color: var(--muted); background: transparent; cursor: pointer; }
+  .person-btn { border: none; border-radius: 8px; padding: 10px; font-size: 13px; color: var(--muted); background: transparent; cursor: pointer; font-family: 'DM Sans'; }
   .person-btn.active-jose { background: var(--jose-dim); color: var(--jose); border: 1px solid var(--jose-mid); }
   .person-btn.active-desi { background: var(--desi-dim); color: var(--desi); border: 1px solid var(--desi-mid); }
 
-  input, select { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 11px; color: var(--text); width: 100%; outline: none; margin-bottom: 10px; font-family: 'DM Sans'; }
-  .add-btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; }
+  input, select { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px; color: var(--text); width: 100%; outline: none; margin-bottom: 10px; font-family: 'DM Sans'; font-size: 16px; }
+  
+  .type-toggle { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-bottom: 15px; }
+  .type-btn { background: var(--bg); border: 1px solid var(--border); color: var(--muted); padding: 8px; border-radius: 8px; font-size: 10px; cursor: pointer; text-transform: uppercase; font-weight: bold; }
+  .type-btn.active { background: var(--surface2); color: var(--text); border-color: var(--muted); }
+
+  .add-btn { width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 15px; transition: opacity 0.2s; }
+  .add-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   .add-btn.jose { background: var(--jose); color: #000; }
   .add-btn.desi { background: var(--desi); color: #000; }
 
-  /* LIST & ITEMS */
-  .expense-item { background: var(--surface); border: 1px solid var(--border); padding: 12px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-  .qualifier-tag { font-size: 9px; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; margin-left: 5px; }
-  .tag-esencial { background: rgba(46, 204, 113, 0.2); color: #2ecc71; }
-  .tag-evitable { background: rgba(241, 196, 15, 0.2); color: #f1c40f; }
-  .tag-desperdicio { background: rgba(232, 125, 125, 0.2); color: #e87d7d; }
+  /* LIST */
+  .expense-item { background: var(--surface); border: 1px solid var(--border); padding: 12px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+  
+  .qualifier-tag { font-size: 9px; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; margin-left: 5px; font-weight: bold; }
+  .tag-esencial { background: rgba(46, 204, 113, 0.15); color: #2ecc71; }
+  .tag-evitable { background: rgba(241, 196, 15, 0.15); color: #f1c40f; }
+  .tag-desperdicio { background: rgba(232, 125, 125, 0.15); color: #e87d7d; }
 
-  @media (min-width: 600px) { body { max-width: 500px; margin: 0 auto; } }
+  .sync-status { text-align: center; font-size: 10px; color: var(--muted); margin-top: 10px; }
+
+  @media (min-width: 600px) { body { max-width: 500px; margin: 0 auto; border-left: 1px solid var(--border); border-right: 1px solid var(--border); } }
 </style>
 </head>
 <body>
@@ -81,7 +87,7 @@
 <header>
   <div>
     <div class="app-title">Gastos 💸</div>
-    <div style="font-size: 10px; color: var(--muted); letter-spacing: 1px;">MONTERREY · 2026</div>
+    <div style="font-size: 10px; color: var(--muted); letter-spacing: 1px; margin-top: 4px;">MONTERREY · 2026</div>
   </div>
   <select class="month-selector" id="month-filter" onchange="render()"></select>
 </header>
@@ -98,11 +104,11 @@
 
 <div class="totals">
   <div class="total-card jose">
-    <div style="font-size: 11px; text-transform: uppercase;">José</div>
+    <div style="font-size: 11px; text-transform: uppercase; margin-bottom: 4px;">José</div>
     <div class="total-amount" id="total-jose">$0</div>
   </div>
   <div class="total-card desi">
-    <div style="font-size: 11px; text-transform: uppercase;">Desi</div>
+    <div style="font-size: 11px; text-transform: uppercase; margin-bottom: 4px;">Desi</div>
     <div class="total-amount" id="total-desi">$0</div>
   </div>
 </div>
@@ -113,8 +119,8 @@
     <button class="person-btn" id="btn-desi" onclick="selectPerson('desi')">👤 Desi</button>
   </div>
 
-  <input type="text" id="desc-input" placeholder="Descripción..." maxlength="40">
-  <input type="number" id="amount-input" placeholder="Monto ($)">
+  <input type="text" id="desc-input" placeholder="¿En qué gastamos?" maxlength="40">
+  <input type="number" id="amount-input" placeholder="Monto ($)" inputmode="decimal">
   
   <select id="cat-input">
     <option value="🍔 Comida">🍔 Comida</option>
@@ -132,25 +138,45 @@
   </div>
 
   <button class="add-btn jose" id="add-btn" onclick="addExpense()">+ Registrar Gasto</button>
+  <div class="sync-status" id="sync-status">Conectado a la nube</div>
 </div>
 
-<div id="expense-list" style="padding: 0 20px;"></div>
+<div id="expense-list" style="padding: 0 20px 40px;"></div>
 
 <script>
-  let expenses = JSON.parse(localStorage.getItem('gastos_jd_v2') || '[]');
+  // URL DE TU GOOGLE SCRIPT
+  const CLOUD_URL = "https://script.google.com/macros/s/AKfycbylS2YWM7HEHYi6AYCAqO-nQsl_YLKYwGfFTylnHSsapg5wBVi9zZZ1KLohR4mjqFCA/exec";
+
+  let expenses = JSON.parse(localStorage.getItem('gastos_jd_cloud') || '[]');
   let currentPerson = 'jose';
   let currentType = 'esencial';
 
-  // Inicializar filtro de meses
+  // Inicializar meses
   const monthFilter = document.getElementById('month-filter');
-  const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+  const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
   const now = new Date();
-  for(let i = 0; i < 12; i++) {
+  months.forEach((m, i) => {
     let opt = document.createElement('option');
     opt.value = i;
-    opt.textContent = months[i];
+    opt.textContent = m;
     if(i === now.getMonth()) opt.selected = true;
     monthFilter.appendChild(opt);
+  });
+
+  async function syncFromCloud() {
+    document.getElementById('sync-status').textContent = "Sincronizando...";
+    try {
+      const response = await fetch(CLOUD_URL);
+      const data = await response.json();
+      if (data && data.length > 0) {
+        expenses = data.reverse(); 
+        localStorage.setItem('gastos_jd_cloud', JSON.stringify(expenses));
+        render();
+      }
+      document.getElementById('sync-status').textContent = "Sincronizado con éxito";
+    } catch (e) {
+      document.getElementById('sync-status').textContent = "Modo Offline (Local)";
+    }
   }
 
   function selectPerson(p) {
@@ -166,52 +192,68 @@
     btn.classList.add('active');
   }
 
-  function addExpense() {
+  async function addExpense() {
     const desc = document.getElementById('desc-input').value;
     const amount = parseFloat(document.getElementById('amount-input').value);
     const cat = document.getElementById('cat-input').value;
-    
+    const btn = document.getElementById('add-btn');
+
     if(!desc || !amount) return;
 
+    btn.disabled = true;
+    btn.textContent = "Enviando...";
+
     const expense = {
+      action: 'add',
       id: Date.now(),
       person: currentPerson,
       desc,
       amount,
       cat,
       type: currentType,
-      month: new Date().getMonth(),
-      date: new Date().toLocaleDateString('es-MX', {day:'2-digit', month:'short'})
+      date: new Date().toLocaleDateString('es-MX')
     };
 
+    // 1. Guardar local para rapidez
     expenses.unshift(expense);
-    localStorage.setItem('gastos_jd_v2', JSON.stringify(expenses));
     render();
-    
+
+    // 2. Enviar a Google Sheets
+    try {
+      await fetch(CLOUD_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: JSON.stringify(expense)
+      });
+      document.getElementById('sync-status').textContent = "Guardado en la nube";
+    } catch (e) {
+      document.getElementById('sync-status').textContent = "Error de red, se guardó local";
+    }
+
     document.getElementById('desc-input').value = '';
     document.getElementById('amount-input').value = '';
-  }
-
-  function deleteExpense(id) {
-    expenses = expenses.filter(e => e.id !== id);
-    localStorage.setItem('gastos_jd_v2', JSON.stringify(expenses));
-    render();
+    btn.disabled = false;
+    btn.textContent = "+ Registrar Gasto";
   }
 
   function render() {
     const selectedMonth = parseInt(monthFilter.value);
-    const filtered = expenses.filter(e => e.month === selectedMonth);
+    // Filtrar por el mes seleccionado (asumiendo formato DD/MM/AAAA)
+    const filtered = expenses.filter(e => {
+        const part = e.date.split('/');
+        return parseInt(part[1]) - 1 === selectedMonth;
+    });
     
     const totals = { jose: 0, desi: 0 };
-    filtered.forEach(e => totals[e.person] += e.amount);
+    filtered.forEach(e => {
+        const val = parseFloat(e.amount);
+        totals[e.person] += val;
+    });
     
     const grandTotal = totals.jose + totals.desi;
-    
-    // UI Totals
     document.getElementById('total-jose').textContent = '$' + totals.jose.toLocaleString();
     document.getElementById('total-desi').textContent = '$' + totals.desi.toLocaleString();
     
-    // Budget Bar logic
     const bar = document.getElementById('budget-bar');
     const text = document.getElementById('budget-text');
     let perc = (grandTotal / 50000) * 100;
@@ -220,25 +262,23 @@
 
     if(grandTotal < 40000) bar.style.backgroundColor = 'var(--success)';
     else if(grandTotal < 45000) bar.style.backgroundColor = 'var(--warning)';
-    else if(grandTotal < 48000) bar.style.backgroundColor = '#e67e22'; // Naranja
+    else if(grandTotal < 48000) bar.style.backgroundColor = '#e67e22'; 
     else bar.style.backgroundColor = 'var(--danger)';
 
-    // List
     const list = document.getElementById('expense-list');
     list.innerHTML = filtered.map(e => `
       <div class="expense-item">
         <div>
           <div style="font-weight:500; font-size:14px">${e.desc} <span class="qualifier-tag tag-${e.type}">${e.type}</span></div>
-          <div style="font-size:10px; color:var(--muted)">${e.date} · ${e.cat} · <span style="color:var(--${e.person})">${e.person}</span></div>
+          <div style="font-size:10px; color:var(--muted)">${e.date} · ${e.cat} · <span style="color:var(--${e.person})">${e.person.toUpperCase()}</span></div>
         </div>
-        <div style="text-align:right">
-          <div style="font-family:'DM Mono'; font-weight:500">$${e.amount}</div>
-          <div style="color:var(--danger); font-size:18px; cursor:pointer" onclick="deleteExpense(${e.id})">×</div>
-        </div>
+        <div style="font-family:'DM Mono'; font-weight:500">$${parseFloat(e.amount).toLocaleString()}</div>
       </div>
     `).join('');
   }
 
+  // Cargar datos al abrir
+  syncFromCloud();
   render();
 </script>
 </body>
