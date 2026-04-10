@@ -9,174 +9,84 @@
 <title>Gastos · José & Desi</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
-
 <style>
   :root {
-    --bg: #0f0f0f;
-    --surface: #1a1a1a;
-    --surface2: #242424;
-    --border: #2e2e2e;
-    --jose: #e8c97d;
-    --jose-dim: rgba(232,201,125,0.12);
-    --jose-mid: rgba(232,201,125,0.25);
-    --desi: #7db8e8;
-    --desi-dim: rgba(125,184,232,0.12);
-    --desi-mid: rgba(125,184,232,0.25);
-    --text: #f0ede8;
-    --muted: #888;
-    --danger: #e87d7d;
-    --warning: #f1c40f;
-    --success: #2ecc71;
-    --radius: 14px;
+    --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #242424; --border: #2e2e2e;
+    --jose: #e8c97d; --jose-dim: rgba(232,201,125,0.12); --jose-mid: rgba(232,201,125,0.25);
+    --desi: #7db8e8; --desi-dim: rgba(125,184,232,0.12); --desi-mid: rgba(125,184,232,0.25);
+    --text: #f0ede8; --muted: #888; --danger: #e87d7d; --warning: #f1c40f; --success: #2ecc71; --radius: 14px;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; padding-bottom: 40px; min-height: 100vh; }
-
   header { padding: 28px 20px 10px; display: flex; justify-content: space-between; align-items: flex-start; }
   .app-title { font-family: 'DM Serif Display', serif; font-size: 28px; line-height: 1; }
   .month-selector { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 5px 10px; border-radius: 8px; font-size: 13px; outline: none; }
-
-  /* PRESUPUESTO */
   .budget-container { margin: 10px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
   .budget-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; font-weight: 500; }
   .budget-bar-bg { background: var(--bg); height: 8px; border-radius: 4px; overflow: hidden; }
   .budget-bar-fill { height: 100%; width: 0%; transition: width 0.8s ease, background-color 0.5s; }
-
-  /* TOTALS */
   .totals { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 20px; }
   .total-card { border-radius: var(--radius); padding: 16px; border: 1px solid transparent; }
   .total-card.jose { background: var(--jose-dim); border-color: var(--jose-mid); color: var(--jose); }
   .total-card.desi { background: var(--desi-dim); border-color: var(--desi-mid); color: var(--desi); }
   .total-amount { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 500; }
-
-  /* INPUT PANEL */
   .input-panel { margin: 16px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
   .person-toggle { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg); border-radius: 10px; padding: 3px; margin-bottom: 12px; }
   .person-btn { border: none; border-radius: 8px; padding: 10px; font-size: 13px; color: var(--muted); background: transparent; cursor: pointer; font-family: 'DM Sans'; }
   .person-btn.active-jose { background: var(--jose-dim); color: var(--jose); border: 1px solid var(--jose-mid); }
   .person-btn.active-desi { background: var(--desi-dim); color: var(--desi); border: 1px solid var(--desi-mid); }
-
   input, select { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px; color: var(--text); width: 100%; outline: none; margin-bottom: 10px; font-family: 'DM Sans'; font-size: 16px; }
-  
   .type-toggle { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-bottom: 15px; }
   .type-btn { background: var(--bg); border: 1px solid var(--border); color: var(--muted); padding: 8px; border-radius: 8px; font-size: 10px; cursor: pointer; text-transform: uppercase; font-weight: bold; }
   .type-btn.active { background: var(--surface2); color: var(--text); border-color: var(--muted); }
-
-  .add-btn { width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 15px; transition: opacity 0.2s; }
-  .add-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .add-btn { width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 15px; }
   .add-btn.jose { background: var(--jose); color: #000; }
   .add-btn.desi { background: var(--desi); color: #000; }
-
-  /* LIST */
-  .expense-item { background: var(--surface); border: 1px solid var(--border); padding: 12px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; animation: fadeIn 0.3s ease; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-  
+  .expense-item { background: var(--surface); border: 1px solid var(--border); padding: 12px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
   .qualifier-tag { font-size: 9px; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; margin-left: 5px; font-weight: bold; }
   .tag-esencial { background: rgba(46, 204, 113, 0.15); color: #2ecc71; }
   .tag-evitable { background: rgba(241, 196, 15, 0.15); color: #f1c40f; }
   .tag-desperdicio { background: rgba(232, 125, 125, 0.15); color: #e87d7d; }
-
+  .delete-btn { color: var(--danger); font-size: 22px; margin-left: 15px; cursor: pointer; padding: 0 10px; }
   .sync-status { text-align: center; font-size: 10px; color: var(--muted); margin-top: 10px; }
-
   @media (min-width: 600px) { body { max-width: 500px; margin: 0 auto; border-left: 1px solid var(--border); border-right: 1px solid var(--border); } }
 </style>
 </head>
 <body>
-
 <header>
-  <div>
-    <div class="app-title">Gastos 💸</div>
-    <div style="font-size: 10px; color: var(--muted); letter-spacing: 1px; margin-top: 4px;">MONTERREY · 2026</div>
-  </div>
+  <div><div class="app-title">Gastos 💸</div><div style="font-size: 10px; color: var(--muted); letter-spacing: 1px; margin-top: 4px;">COMPARTIDO · JOSÉ & DESI</div></div>
   <select class="month-selector" id="month-filter" onchange="render()"></select>
 </header>
-
 <div class="budget-container">
-  <div class="budget-header">
-    <span>PRESUPUESTO MENSUAL</span>
-    <span id="budget-text">$0 / $50,000</span>
-  </div>
-  <div class="budget-bar-bg">
-    <div id="budget-bar" class="budget-bar-fill"></div>
-  </div>
+  <div class="budget-header"><span>PRESUPUESTO MENSUAL</span><span id="budget-text">$0 / $50,000</span></div>
+  <div class="budget-bar-bg"><div id="budget-bar" class="budget-bar-fill"></div></div>
 </div>
-
-<div class="totals">
-  <div class="total-card jose">
-    <div style="font-size: 11px; text-transform: uppercase; margin-bottom: 4px;">José</div>
-    <div class="total-amount" id="total-jose">$0</div>
-  </div>
-  <div class="total-card desi">
-    <div style="font-size: 11px; text-transform: uppercase; margin-bottom: 4px;">Desi</div>
-    <div class="total-amount" id="total-desi">$0</div>
-  </div>
-</div>
-
+<div class="totals"><div class="total-card jose"><div style="font-size: 11px; text-transform: uppercase; mb: 4px;">José</div><div class="total-amount" id="total-jose">$0</div></div>
+<div class="total-card desi"><div style="font-size: 11px; text-transform: uppercase; mb: 4px;">Desi</div><div class="total-amount" id="total-desi">$0</div></div></div>
 <div class="input-panel">
-  <div class="person-toggle">
-    <button class="person-btn active-jose" id="btn-jose" onclick="selectPerson('jose')">👤 José</button>
-    <button class="person-btn" id="btn-desi" onclick="selectPerson('desi')">👤 Desi</button>
-  </div>
-
+  <div class="person-toggle"><button class="person-btn active-jose" id="btn-jose" onclick="selectPerson('jose')">👤 José</button><button class="person-btn" id="btn-desi" onclick="selectPerson('desi')">👤 Desi</button></div>
   <input type="text" id="desc-input" placeholder="¿En qué gastamos?" maxlength="40">
   <input type="number" id="amount-input" placeholder="Monto ($)" inputmode="decimal">
-  
-  <select id="cat-input">
-    <option value="🍔 Comida">🍔 Comida</option>
-    <option value="🚗 Transporte">🚗 Transporte</option>
-    <option value="🏠 Casa">🏠 Casa</option>
-    <option value="🛒 Super">🛒 Super</option>
-    <option value="🎉 Ocio">🎉 Ocio</option>
-    <option value="🌀 Otro">🌀 Otro</option>
-  </select>
-
-  <div class="type-toggle">
-    <button class="type-btn active" onclick="setType(this, 'esencial')">Esencial</button>
-    <button class="type-btn" onclick="setType(this, 'evitable')">Evitable</button>
-    <button class="type-btn" onclick="setType(this, 'desperdicio')">Desperdicio</button>
-  </div>
-
+  <select id="cat-input"><option value="🍔 Comida">🍔 Comida</option><option value="🚗 Transporte">🚗 Transporte</option><option value="🏠 Casa">🏠 Casa</option><option value="🛒 Super">🛒 Super</option><option value="🎉 Ocio">🎉 Ocio</option><option value="🌀 Otro">🌀 Otro</option></select>
+  <div class="type-toggle"><button class="type-btn active" onclick="setType(this, 'esencial')">Esencial</button><button class="type-btn" onclick="setType(this, 'evitable')">Evitable</button><button class="type-btn" onclick="setType(this, 'desperdicio')">Desperdicio</button></div>
   <button class="add-btn jose" id="add-btn" onclick="addExpense()">+ Registrar Gasto</button>
-  <div class="sync-status" id="sync-status">Conectado a la nube</div>
+  <div class="sync-status" id="sync-status">Actualizando...</div>
 </div>
-
 <div id="expense-list" style="padding: 0 20px 40px;"></div>
-
 <script>
-  // URL DE TU GOOGLE SCRIPT
-  const CLOUD_URL = "https://script.google.com/macros/s/AKfycbylS2YWM7HEHYi6AYCAqO-nQsl_YLKYwGfFTylnHSsapg5wBVi9zZZ1KLohR4mjqFCA/exec";
-
-  let expenses = JSON.parse(localStorage.getItem('gastos_jd_cloud') || '[]');
-  let currentPerson = 'jose';
-  let currentType = 'esencial';
-
-  // Inicializar meses
+  const CLOUD_URL = "https://script.google.com/macros/s/AKfycbzoKjHthMLP-WkSfcLgLzGGBxYyt-fSLHF3mSA4Pd_vVzO_zngmMKNB7Ba2hEY19cYH/exec";
+  let expenses = []; let currentPerson = 'jose'; let currentType = 'esencial';
   const monthFilter = document.getElementById('month-filter');
   const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
   const now = new Date();
-  months.forEach((m, i) => {
-    let opt = document.createElement('option');
-    opt.value = i;
-    opt.textContent = m;
-    if(i === now.getMonth()) opt.selected = true;
-    monthFilter.appendChild(opt);
-  });
+  months.forEach((m, i) => { let opt = document.createElement('option'); opt.value = i; opt.textContent = m; if(i === now.getMonth()) opt.selected = true; monthFilter.appendChild(opt); });
 
   async function syncFromCloud() {
-    document.getElementById('sync-status').textContent = "Sincronizando...";
     try {
       const response = await fetch(CLOUD_URL);
       const data = await response.json();
-      if (data && data.length > 0) {
-        expenses = data.reverse(); 
-        localStorage.setItem('gastos_jd_cloud', JSON.stringify(expenses));
-        render();
-      }
-      document.getElementById('sync-status').textContent = "Sincronizado con éxito";
-    } catch (e) {
-      document.getElementById('sync-status').textContent = "Modo Offline (Local)";
-    }
+      if (Array.isArray(data)) { expenses = data.reverse(); render(); document.getElementById('sync-status').textContent = "Sincronizado"; }
+    } catch (e) { document.getElementById('sync-status').textContent = "Buscando red..."; }
   }
 
   function selectPerson(p) {
@@ -195,76 +105,39 @@
   async function addExpense() {
     const desc = document.getElementById('desc-input').value;
     const amount = parseFloat(document.getElementById('amount-input').value);
-    const cat = document.getElementById('cat-input').value;
-    const btn = document.getElementById('add-btn');
-
     if(!desc || !amount) return;
+    const btn = document.getElementById('add-btn');
+    btn.disabled = true; btn.textContent = "Sincronizando...";
+    const expense = { action: 'add', id: Date.now(), person: currentPerson, desc, amount, cat: document.getElementById('cat-input').value, type: currentType, date: new Date().toLocaleDateString('es-MX') };
+    await fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(expense) });
+    document.getElementById('desc-input').value = ''; document.getElementById('amount-input').value = '';
+    btn.disabled = false; btn.textContent = "+ Registrar Gasto";
+    setTimeout(syncFromCloud, 1000);
+  }
 
-    btn.disabled = true;
-    btn.textContent = "Enviando...";
-
-    const expense = {
-      action: 'add',
-      id: Date.now(),
-      person: currentPerson,
-      desc,
-      amount,
-      cat,
-      type: currentType,
-      date: new Date().toLocaleDateString('es-MX')
-    };
-
-    // 1. Guardar local para rapidez
-    expenses.unshift(expense);
-    render();
-
-    // 2. Enviar a Google Sheets
-    try {
-      await fetch(CLOUD_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        body: JSON.stringify(expense)
-      });
-      document.getElementById('sync-status').textContent = "Guardado en la nube";
-    } catch (e) {
-      document.getElementById('sync-status').textContent = "Error de red, se guardó local";
-    }
-
-    document.getElementById('desc-input').value = '';
-    document.getElementById('amount-input').value = '';
-    btn.disabled = false;
-    btn.textContent = "+ Registrar Gasto";
+  async function deleteExpense(id) {
+    if(!confirm("¿Borrar este gasto?")) return;
+    document.getElementById('sync-status').textContent = "Eliminando...";
+    await fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'delete', id: id }) });
+    setTimeout(syncFromCloud, 1000);
   }
 
   function render() {
     const selectedMonth = parseInt(monthFilter.value);
-    // Filtrar por el mes seleccionado (asumiendo formato DD/MM/AAAA)
-    const filtered = expenses.filter(e => {
-        const part = e.date.split('/');
-        return parseInt(part[1]) - 1 === selectedMonth;
+    const filtered = expenses.filter(e => { 
+      const part = e.date.split('/'); 
+      return parseInt(part[1]) - 1 === selectedMonth; 
     });
-    
     const totals = { jose: 0, desi: 0 };
-    filtered.forEach(e => {
-        const val = parseFloat(e.amount);
-        totals[e.person] += val;
-    });
-    
+    filtered.forEach(e => { totals[e.person] += parseFloat(e.amount); });
     const grandTotal = totals.jose + totals.desi;
     document.getElementById('total-jose').textContent = '$' + totals.jose.toLocaleString();
     document.getElementById('total-desi').textContent = '$' + totals.desi.toLocaleString();
-    
     const bar = document.getElementById('budget-bar');
-    const text = document.getElementById('budget-text');
     let perc = (grandTotal / 50000) * 100;
     bar.style.width = Math.min(perc, 100) + '%';
-    text.textContent = `$${grandTotal.toLocaleString()} / $50,000`;
-
-    if(grandTotal < 40000) bar.style.backgroundColor = 'var(--success)';
-    else if(grandTotal < 45000) bar.style.backgroundColor = 'var(--warning)';
-    else if(grandTotal < 48000) bar.style.backgroundColor = '#e67e22'; 
-    else bar.style.backgroundColor = 'var(--danger)';
-
+    document.getElementById('budget-text').textContent = `$${grandTotal.toLocaleString()} / $50,000`;
+    bar.style.backgroundColor = grandTotal < 40000 ? 'var(--success)' : grandTotal < 45000 ? 'var(--warning)' : grandTotal < 48000 ? '#e67e22' : 'var(--danger)';
     const list = document.getElementById('expense-list');
     list.innerHTML = filtered.map(e => `
       <div class="expense-item">
@@ -272,14 +145,14 @@
           <div style="font-weight:500; font-size:14px">${e.desc} <span class="qualifier-tag tag-${e.type}">${e.type}</span></div>
           <div style="font-size:10px; color:var(--muted)">${e.date} · ${e.cat} · <span style="color:var(--${e.person})">${e.person.toUpperCase()}</span></div>
         </div>
-        <div style="font-family:'DM Mono'; font-weight:500">$${parseFloat(e.amount).toLocaleString()}</div>
-      </div>
-    `).join('');
+        <div style="display:flex; align-items:center">
+          <div style="font-family:'DM Mono'; font-weight:500">$${parseFloat(e.amount).toLocaleString()}</div>
+          <div class="delete-btn" onclick="deleteExpense('${e.id}')">×</div>
+        </div>
+      </div>`).join('');
   }
-
-  // Cargar datos al abrir
   syncFromCloud();
-  render();
+  setInterval(syncFromCloud, 20000);
 </script>
 </body>
 </html>
