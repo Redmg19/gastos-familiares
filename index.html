@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f0f0f">
+<title>Gastos · José & Desi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #242424;
+    --border: #2e2e2e;
+    --jose: #e8c97d;
+    --jose-dim: rgba(232,201,125,0.12);
+    --jose-mid: rgba(232,201,125,0.25);
+    --desi: #7db8e8;
+    --desi-dim: rgba(125,184,232,0.12);
+    --desi-mid: rgba(125,184,232,0.25);
+    --text: #f0ede8;
+    --muted: #888;
+    --danger: #e87d7d;
+    --warning: #f1c40f;
+    --success: #2ecc71;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; padding-bottom: 40px; }
+
+  header { padding: 28px 20px 10px; display: flex; justify-content: space-between; align-items: flex-start; }
+  .app-title { font-family: 'DM Serif Display', serif; font-size: 28px; line-height: 1; }
+  .month-selector { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 5px 10px; border-radius: 8px; font-size: 13px; }
+
+  /* PRESUPUESTO */
+  .budget-container { margin: 10px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+  .budget-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; font-weight: 500; }
+  .budget-bar-bg { background: var(--bg); height: 8px; border-radius: 4px; overflow: hidden; }
+  .budget-bar-fill { height: 100%; width: 0%; transition: width 0.5s, background-color 0.5s; }
+
+  /* TOTALS */
+  .totals { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 20px; }
+  .total-card { border-radius: var(--radius); padding: 16px; border: 1px solid transparent; }
+  .total-card.jose { background: var(--jose-dim); border-color: var(--jose-mid); color: var(--jose); }
+  .total-card.desi { background: var(--desi-dim); border-color: var(--desi-mid); color: var(--desi); }
+  .total-amount { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 500; }
+
+  /* INPUT PANEL */
+  .input-panel { margin: 16px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+  .type-toggle { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin: 12px 0; }
+  .type-btn { background: var(--bg); border: 1px solid var(--border); color: var(--muted); padding: 8px; border-radius: 8px; font-size: 10px; cursor: pointer; text-transform: uppercase; }
+  .type-btn.active { background: var(--surface2); color: var(--text); border-color: var(--muted); }
+
+  .person-toggle { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg); border-radius: 10px; padding: 3px; margin-bottom: 12px; }
+  .person-btn { border: none; border-radius: 8px; padding: 10px; font-size: 13px; color: var(--muted); background: transparent; cursor: pointer; }
+  .person-btn.active-jose { background: var(--jose-dim); color: var(--jose); border: 1px solid var(--jose-mid); }
+  .person-btn.active-desi { background: var(--desi-dim); color: var(--desi); border: 1px solid var(--desi-mid); }
+
+  input, select { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 11px; color: var(--text); width: 100%; outline: none; margin-bottom: 10px; font-family: 'DM Sans'; }
+  .add-btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; }
+  .add-btn.jose { background: var(--jose); color: #000; }
+  .add-btn.desi { background: var(--desi); color: #000; }
+
+  /* LIST & ITEMS */
+  .expense-item { background: var(--surface); border: 1px solid var(--border); padding: 12px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+  .qualifier-tag { font-size: 9px; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; margin-left: 5px; }
+  .tag-esencial { background: rgba(46, 204, 113, 0.2); color: #2ecc71; }
+  .tag-evitable { background: rgba(241, 196, 15, 0.2); color: #f1c40f; }
+  .tag-desperdicio { background: rgba(232, 125, 125, 0.2); color: #e87d7d; }
+
+  @media (min-width: 600px) { body { max-width: 500px; margin: 0 auto; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="app-title">Gastos 💸</div>
+    <div style="font-size: 10px; color: var(--muted); letter-spacing: 1px;">MONTERREY · 2026</div>
+  </div>
+  <select class="month-selector" id="month-filter" onchange="render()"></select>
+</header>
+
+<div class="budget-container">
+  <div class="budget-header">
+    <span>PRESUPUESTO MENSUAL</span>
+    <span id="budget-text">$0 / $50,000</span>
+  </div>
+  <div class="budget-bar-bg">
+    <div id="budget-bar" class="budget-bar-fill"></div>
+  </div>
+</div>
+
+<div class="totals">
+  <div class="total-card jose">
+    <div style="font-size: 11px; text-transform: uppercase;">José</div>
+    <div class="total-amount" id="total-jose">$0</div>
+  </div>
+  <div class="total-card desi">
+    <div style="font-size: 11px; text-transform: uppercase;">Desi</div>
+    <div class="total-amount" id="total-desi">$0</div>
+  </div>
+</div>
+
+<div class="input-panel">
+  <div class="person-toggle">
+    <button class="person-btn active-jose" id="btn-jose" onclick="selectPerson('jose')">👤 José</button>
+    <button class="person-btn" id="btn-desi" onclick="selectPerson('desi')">👤 Desi</button>
+  </div>
+
+  <input type="text" id="desc-input" placeholder="Descripción..." maxlength="40">
+  <input type="number" id="amount-input" placeholder="Monto ($)">
+  
+  <select id="cat-input">
+    <option value="🍔 Comida">🍔 Comida</option>
+    <option value="🚗 Transporte">🚗 Transporte</option>
+    <option value="🏠 Casa">🏠 Casa</option>
+    <option value="🛒 Super">🛒 Super</option>
+    <option value="🎉 Ocio">🎉 Ocio</option>
+    <option value="🌀 Otro">🌀 Otro</option>
+  </select>
+
+  <div class="type-toggle">
+    <button class="type-btn active" onclick="setType(this, 'esencial')">Esencial</button>
+    <button class="type-btn" onclick="setType(this, 'evitable')">Evitable</button>
+    <button class="type-btn" onclick="setType(this, 'desperdicio')">Desperdicio</button>
+  </div>
+
+  <button class="add-btn jose" id="add-btn" onclick="addExpense()">+ Registrar Gasto</button>
+</div>
+
+<div id="expense-list" style="padding: 0 20px;"></div>
+
+<script>
+  let expenses = JSON.parse(localStorage.getItem('gastos_jd_v2') || '[]');
+  let currentPerson = 'jose';
+  let currentType = 'esencial';
+
+  // Inicializar filtro de meses
+  const monthFilter = document.getElementById('month-filter');
+  const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+  const now = new Date();
+  for(let i = 0; i < 12; i++) {
+    let opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = months[i];
+    if(i === now.getMonth()) opt.selected = true;
+    monthFilter.appendChild(opt);
+  }
+
+  function selectPerson(p) {
+    currentPerson = p;
+    document.getElementById('btn-jose').className = 'person-btn' + (p === 'jose' ? ' active-jose' : '');
+    document.getElementById('btn-desi').className = 'person-btn' + (p === 'desi' ? ' active-desi' : '');
+    document.getElementById('add-btn').className = 'add-btn ' + p;
+  }
+
+  function setType(btn, type) {
+    currentType = type;
+    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function addExpense() {
+    const desc = document.getElementById('desc-input').value;
+    const amount = parseFloat(document.getElementById('amount-input').value);
+    const cat = document.getElementById('cat-input').value;
+    
+    if(!desc || !amount) return;
+
+    const expense = {
+      id: Date.now(),
+      person: currentPerson,
+      desc,
+      amount,
+      cat,
+      type: currentType,
+      month: new Date().getMonth(),
+      date: new Date().toLocaleDateString('es-MX', {day:'2-digit', month:'short'})
+    };
+
+    expenses.unshift(expense);
+    localStorage.setItem('gastos_jd_v2', JSON.stringify(expenses));
+    render();
+    
+    document.getElementById('desc-input').value = '';
+    document.getElementById('amount-input').value = '';
+  }
+
+  function deleteExpense(id) {
+    expenses = expenses.filter(e => e.id !== id);
+    localStorage.setItem('gastos_jd_v2', JSON.stringify(expenses));
+    render();
+  }
+
+  function render() {
+    const selectedMonth = parseInt(monthFilter.value);
+    const filtered = expenses.filter(e => e.month === selectedMonth);
+    
+    const totals = { jose: 0, desi: 0 };
+    filtered.forEach(e => totals[e.person] += e.amount);
+    
+    const grandTotal = totals.jose + totals.desi;
+    
+    // UI Totals
+    document.getElementById('total-jose').textContent = '$' + totals.jose.toLocaleString();
+    document.getElementById('total-desi').textContent = '$' + totals.desi.toLocaleString();
+    
+    // Budget Bar logic
+    const bar = document.getElementById('budget-bar');
+    const text = document.getElementById('budget-text');
+    let perc = (grandTotal / 50000) * 100;
+    bar.style.width = Math.min(perc, 100) + '%';
+    text.textContent = `$${grandTotal.toLocaleString()} / $50,000`;
+
+    if(grandTotal < 40000) bar.style.backgroundColor = 'var(--success)';
+    else if(grandTotal < 45000) bar.style.backgroundColor = 'var(--warning)';
+    else if(grandTotal < 48000) bar.style.backgroundColor = '#e67e22'; // Naranja
+    else bar.style.backgroundColor = 'var(--danger)';
+
+    // List
+    const list = document.getElementById('expense-list');
+    list.innerHTML = filtered.map(e => `
+      <div class="expense-item">
+        <div>
+          <div style="font-weight:500; font-size:14px">${e.desc} <span class="qualifier-tag tag-${e.type}">${e.type}</span></div>
+          <div style="font-size:10px; color:var(--muted)">${e.date} · ${e.cat} · <span style="color:var(--${e.person})">${e.person}</span></div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:'DM Mono'; font-weight:500">$${e.amount}</div>
+          <div style="color:var(--danger); font-size:18px; cursor:pointer" onclick="deleteExpense(${e.id})">×</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  render();
+</script>
+</body>
+</html>
