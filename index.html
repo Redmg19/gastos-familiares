@@ -12,14 +12,13 @@
     --text: #f0ede8; --muted: #888; --danger: #e87d7d; --success: #2ecc71;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; padding-bottom: 100px; }
-  
-  header { padding: 25px 20px; display: flex; justify-content: space-between; align-items: center; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; padding-bottom: 100px; min-height: 100vh; }
+  header { padding: 25px 20px 10px; display: flex; justify-content: space-between; align-items: center; }
   .app-title { font-family: 'DM Serif Display', serif; font-size: 24px; }
+  .status-dot { font-size: 10px; text-align: center; color: var(--muted); margin-bottom: 10px; }
 
   .summary-table { margin: 0 20px 20px; width: calc(100% - 40px); border-collapse: collapse; background: var(--surface); border-radius: 12px; overflow: hidden; font-size: 13px; }
   .summary-table th, .summary-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
-  .summary-table th { color: var(--muted); font-weight: 500; }
   .val-jose { color: var(--jose); font-family: 'DM Mono'; }
   .val-desi { color: var(--desi); font-family: 'DM Mono'; }
 
@@ -28,14 +27,15 @@
   .tab-btn.active { background: var(--bg); color: var(--text); }
 
   .panel { margin: 0 20px; background: var(--surface); padding: 20px; border-radius: 15px; border: 1px solid var(--border); }
-  input, select { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; color: var(--text); width: 100%; margin-bottom: 10px; font-size: 16px; }
+  input, select { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; color: var(--text); width: 100%; margin-bottom: 10px; font-size: 16px; outline: none; }
   
   .person-sel { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-  .p-btn { padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--muted); cursor: pointer; }
+  .p-btn { padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--muted); cursor: pointer; font-weight: bold; }
   .p-btn.active-jose { border-color: var(--jose); color: var(--jose); background: rgba(232,201,125,0.1); }
   .p-btn.active-desi { border-color: var(--desi); color: var(--desi); background: rgba(125,184,232,0.1); }
 
   .add-btn { width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; background: var(--success); color: #000; }
+  .add-btn:disabled { opacity: 0.5; }
   
   .list-container { padding: 20px; }
   .item { background: var(--surface); padding: 12px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid transparent; }
@@ -50,10 +50,10 @@
   <select id="month-filter" style="width: auto; margin:0" onchange="sync()"></select>
 </header>
 
+<div id="sync-status" class="status-dot">🔄 Sincronizando...</div>
+
 <table class="summary-table">
-  <thead>
-    <tr><th>Concepto</th><th>José</th><th>Desi</th><th>Total</th></tr>
-  </thead>
+  <thead><tr><th>Concepto</th><th>José</th><th>Desi</th><th>Total</th></tr></thead>
   <tbody>
     <tr><td>Ingresos</td><td id="in-jose" class="val-jose">$0</td><td id="in-desi" class="val-desi">$0</td><td id="in-total" style="font-weight:bold">$0</td></tr>
     <tr><td>Gastos</td><td id="out-jose" class="val-jose">$0</td><td id="out-desi" class="val-desi">$0</td><td id="out-total" style="font-weight:bold">$0</td></tr>
@@ -85,7 +85,7 @@
     <option value="🙏 Diezmo/Ofrenda">🙏 Diezmo/Ofrenda</option>
     <option value="🌀 Otros">🌀 Otros</option>
   </select>
-  <button class="add-btn" onclick="addGasto()">Registrar Gasto</button>
+  <button class="add-btn" id="btn-g" onclick="addGasto()">Registrar Gasto</button>
 </div>
 
 <div id="panel-ingresos" class="panel" style="display:none">
@@ -93,9 +93,9 @@
     <button class="p-btn active-jose" id="pi-jose" onclick="setPerson('jose')">José</button>
     <button class="p-btn" id="pi-desi" onclick="setPerson('desi')">Desi</button>
   </div>
-  <input type="text" id="i-concept" placeholder="Concepto (ej: Pago cliente)">
+  <input type="text" id="i-concept" placeholder="Concepto de ingreso">
   <input type="number" id="i-amount" placeholder="Monto $" inputmode="decimal">
-  <button class="add-btn" style="background: var(--desi); color:#000" onclick="addIngreso()">Registrar Ingreso</button>
+  <button class="add-btn" id="btn-i" style="background: var(--desi)" onclick="addIngreso()">Registrar Ingreso</button>
 </div>
 
 <div id="main-list" class="list-container"></div>
@@ -131,20 +131,25 @@
   }
 
   async function sync() {
+    const status = document.getElementById('sync-status');
+    status.textContent = "🔄 Sincronizando...";
     try {
       const resp = await fetch(URL + "?t=" + Date.now());
       data = await resp.json();
       render();
-    } catch(e) { console.error(e); }
+      status.textContent = "✅ Conectado";
+    } catch(e) { status.textContent = "❌ Error de Red"; }
   }
 
   async function addGasto() {
     const desc = document.getElementById('g-desc').value;
     const amount = document.getElementById('g-amount').value;
     if(!desc || !amount) return;
-    const body = { action:'add', id:Date.now(), person:user, desc, amount, cat:document.getElementById('g-cat').value, type:'esencial', date:new Date().toLocaleDateString('es-MX') };
+    document.getElementById('btn-g').disabled = true;
+    const body = { action:'add', id:Date.now(), person:user, desc, amount, cat:document.getElementById('g-cat').value, date:new Date().toLocaleDateString('es-MX') };
     await fetch(URL, { method:'POST', mode:'no-cors', body: JSON.stringify(body) });
     document.getElementById('g-desc').value = ''; document.getElementById('g-amount').value = '';
+    document.getElementById('btn-g').disabled = false;
     setTimeout(sync, 1500);
   }
 
@@ -152,49 +157,49 @@
     const concept = document.getElementById('i-concept').value;
     const amount = document.getElementById('i-amount').value;
     if(!concept || !amount) return;
+    document.getElementById('btn-i').disabled = true;
     const body = { action:'add_ingreso', id:Date.now(), person:user, concept, amount, date:new Date().toLocaleDateString('es-MX') };
     await fetch(URL, { method:'POST', mode:'no-cors', body: JSON.stringify(body) });
     document.getElementById('i-concept').value = ''; document.getElementById('i-amount').value = '';
+    document.getElementById('btn-i').disabled = false;
     setTimeout(sync, 1500);
   }
 
   function render() {
     const m = parseInt(monthFilter.value);
-    const filterByMonth = (list) => list.filter(item => {
-      const d = item.fecha || item.date;
-      return d && (d.includes('T') ? new Date(d).getMonth() : parseInt(d.split('/')[1])-1) === m;
+    const filterM = (l) => l.filter(x => {
+        let d = x.fecha || x.date;
+        if(!d) return false;
+        let idx = d.includes('T') ? new Date(d).getMonth() : parseInt(d.split('/')[1])-1;
+        return idx === m;
     });
 
-    const fGastos = filterByMonth(data.gastos);
-    const fIngresos = filterByMonth(data.ingresos);
+    const fG = filterM(data.gastos);
+    const fI = filterM(data.ingresos);
 
-    const calc = (list, p) => list.filter(x => x.persona.toLowerCase() === p).reduce((a,b) => a + parseFloat(b.monto || 0), 0);
+    const sum = (l, p) => l.filter(x => (x.persona || '').toLowerCase() === p).reduce((a,b) => a + parseFloat(b.monto || 0), 0);
 
-    const totals = {
-      gJose: calc(fGastos, 'jose'), gDesi: calc(fGastos, 'desi'),
-      iJose: calc(fIngresos, 'jose'), iDesi: calc(fIngresos, 'desi')
-    };
+    const tot = { gj: sum(fG, 'jose'), gd: sum(fG, 'desi'), ij: sum(fI, 'jose'), id: sum(fI, 'desi') };
 
-    document.getElementById('in-jose').textContent = '$' + totals.iJose.toLocaleString();
-    document.getElementById('in-desi').textContent = '$' + totals.iDesi.toLocaleString();
-    document.getElementById('in-total').textContent = '$' + (totals.iJose + totals.iDesi).toLocaleString();
-    document.getElementById('out-jose').textContent = '$' + totals.gJose.toLocaleString();
-    document.getElementById('out-desi').textContent = '$' + totals.gDesi.toLocaleString();
-    document.getElementById('out-total').textContent = '$' + (totals.gJose + totals.gDesi).toLocaleString();
+    document.getElementById('in-jose').textContent = '$' + tot.ij.toLocaleString();
+    document.getElementById('in-desi').textContent = '$' + tot.id.toLocaleString();
+    document.getElementById('in-total').textContent = '$' + (tot.ij + tot.id).toLocaleString();
+    document.getElementById('out-jose').textContent = '$' + tot.gj.toLocaleString();
+    document.getElementById('out-desi').textContent = '$' + tot.gd.toLocaleString();
+    document.getElementById('out-total').textContent = '$' + (tot.gj + tot.gd).toLocaleString();
 
     const list = document.getElementById('main-list');
-    const items = currentTab === 'gastos' ? fGastos : fIngresos;
+    const items = currentTab === 'gastos' ? fG : fI;
     list.innerHTML = items.reverse().map(x => `
-      <div class="item g-${x.persona.toLowerCase()}">
+      <div class="item g-${(x.persona || 'jose').toLowerCase()}">
         <div>
-          <div style="font-weight:bold">${x.descripcion || x.concept || x.desc}</div>
-          <div style="font-size:11px; color:var(--muted)">${x.categoria || 'Ingreso'} · ${x.persona.toUpperCase()}</div>
+          <div style="font-weight:bold">${x.descripcion || x.concept || x.desc || 'Item'}</div>
+          <div style="font-size:11px; color:var(--muted)">${x.categoria || 'Ingreso'} · ${(x.persona || 'JOSE').toUpperCase()}</div>
         </div>
-        <div style="font-family:'DM Mono'; font-weight:bold">$${parseFloat(x.monto).toLocaleString()}</div>
+        <div style="font-family:'DM Mono'; font-weight:bold">$${parseFloat(x.monto || 0).toLocaleString()}</div>
       </div>
     `).join('');
   }
-
   sync();
   setInterval(sync, 30000);
 </script>
