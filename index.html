@@ -32,7 +32,7 @@
   .total-amount { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 500; }
   .input-panel { margin: 16px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
   .person-toggle { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg); border-radius: 10px; padding: 3px; margin-bottom: 12px; }
-  .person-btn { border: none; border-radius: 8px; padding: 10px; font-size: 13px; color: var(--muted); background: transparent; cursor: pointer; font-family: 'DM Sans'; }
+  .person-btn { border: none; border-radius: 8px; padding: 10px; font-size: 13px; color: var(--muted); background: transparent; cursor: pointer; }
   .person-btn.active-jose { background: var(--jose-dim); color: var(--jose); border: 1px solid var(--jose-mid); }
   .person-btn.active-desi { background: var(--desi-dim); color: var(--desi); border: 1px solid var(--desi-mid); }
   input, select { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px; color: var(--text); width: 100%; outline: none; margin-bottom: 10px; font-family: 'DM Sans'; font-size: 16px; }
@@ -49,7 +49,6 @@
   .tag-desperdicio { background: rgba(232, 125, 125, 0.15); color: #e87d7d; }
   .delete-btn { color: var(--danger); font-size: 22px; margin-left: 15px; cursor: pointer; padding: 0 10px; }
   .sync-status { text-align: center; font-size: 10px; color: var(--muted); margin-top: 10px; }
-  @media (min-width: 600px) { body { max-width: 500px; margin: 0 auto; border-left: 1px solid var(--border); border-right: 1px solid var(--border); } }
 </style>
 </head>
 <body>
@@ -61,58 +60,39 @@
   <div class="budget-header"><span>PRESUPUESTO MENSUAL</span><span id="budget-text">$0 / $50,000</span></div>
   <div class="budget-bar-bg"><div id="budget-bar" class="budget-bar-fill"></div></div>
 </div>
-<div class="totals">
-  <div class="total-card jose"><div style="font-size: 11px; text-transform: uppercase;">José</div><div class="total-amount" id="total-jose">$0</div></div>
-  <div class="total-card desi"><div style="font-size: 11px; text-transform: uppercase;">Desi</div><div class="total-amount" id="total-desi">$0</div></div>
-</div>
+<div class="totals"><div class="total-card jose"><div style="font-size: 11px; text-transform: uppercase;">José</div><div class="total-amount" id="total-jose">$0</div></div>
+<div class="total-card desi"><div style="font-size: 11px; text-transform: uppercase;">Desi</div><div class="total-amount" id="total-desi">$0</div></div></div>
 <div class="input-panel">
-  <div class="person-toggle">
-    <button class="person-btn active-jose" id="btn-jose" onclick="selectPerson('jose')">👤 José</button>
-    <button class="person-btn" id="btn-desi" onclick="selectPerson('desi')">👤 Desi</button>
-  </div>
+  <div class="person-toggle"><button class="person-btn active-jose" id="btn-jose" onclick="selectPerson('jose')">👤 José</button><button class="person-btn" id="btn-desi" onclick="selectPerson('desi')">👤 Desi</button></div>
   <input type="text" id="desc-input" placeholder="¿En qué gastamos?" maxlength="40">
   <input type="number" id="amount-input" placeholder="Monto ($)" inputmode="decimal">
-  <select id="cat-input">
-    <option value="🍔 Comida">🍔 Comida</option>
-    <option value="🚗 Transporte">🚗 Transporte</option>
-    <option value="🏠 Casa">🏠 Casa</option>
-    <option value="🛒 Super">🛒 Super</option>
-    <option value="🎉 Ocio">🎉 Ocio</option>
-    <option value="🌀 Otro">🌀 Otro</option>
-  </select>
-  <div class="type-toggle">
-    <button class="type-btn active" onclick="setType(this, 'esencial')">Esencial</button>
-    <button class="type-btn" onclick="setType(this, 'evitable')">Evitable</button>
-    <button class="type-btn" onclick="setType(this, 'desperdicio')">Desperdicio</button>
-  </div>
+  <select id="cat-input"><option value="🍔 Comida">🍔 Comida</option><option value="🚗 Transporte">🚗 Transporte</option><option value="🏠 Casa">🏠 Casa</option><option value="🛒 Super">🛒 Super</option><option value="🎉 Ocio">🎉 Ocio</option><option value="🌀 Otro">🌀 Otro</option></select>
+  <div class="type-toggle"><button class="type-btn active" onclick="setType(this, 'esencial')">Esencial</button><button class="type-btn" onclick="setType(this, 'evitable')">Evitable</button><button class="type-btn" onclick="setType(this, 'desperdicio')">Desperdicio</button></div>
   <button class="add-btn jose" id="add-btn" onclick="addExpense()">+ Registrar Gasto</button>
-  <div class="sync-status" id="sync-status">Cargando...</div>
+  <div class="sync-status" id="sync-status">Sincronizando...</div>
 </div>
 <div id="expense-list" style="padding: 0 20px 40px;"></div>
-
 <script>
   const CLOUD_URL = "https://script.google.com/macros/s/AKfycbyBhXZ8n1O6fyXh4EGNXIJN8-QixT7pWtSqD9imWc81Z6sSNLPefNyidmT5E_EMCUz4/exec";
-  
   let expenses = []; let currentPerson = 'jose'; let currentType = 'esencial';
   const monthFilter = document.getElementById('month-filter');
   const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
   const now = new Date();
-  months.forEach((m, i) => { 
-    let opt = document.createElement('option'); opt.value = i; opt.textContent = m; 
-    if(i === now.getMonth()) opt.selected = true; monthFilter.appendChild(opt); 
-  });
+  months.forEach((m, i) => { let opt = document.createElement('option'); opt.value = i; opt.textContent = m; if(i === now.getMonth()) opt.selected = true; monthFilter.appendChild(opt); });
 
   async function syncFromCloud() {
-    const status = document.getElementById('sync-status');
     try {
+      // Truco definitivo: Pedimos los datos y si fallan, usamos una técnica de respaldo
       const response = await fetch(CLOUD_URL + '?nocache=' + Date.now());
       const data = await response.json();
-      if (Array.isArray(data)) { 
-        expenses = data.reverse(); 
+      if (data) { 
+        expenses = Array.isArray(data) ? data.reverse() : []; 
         render(); 
-        status.textContent = "Sincronizado"; 
+        document.getElementById('sync-status').textContent = "Conectado"; 
       }
-    } catch (e) { status.textContent = "Sincronizando..."; }
+    } catch (e) { 
+       console.log("Error de red, reintentando...");
+    }
   }
 
   function selectPerson(p) {
@@ -133,65 +113,59 @@
     const amount = parseFloat(document.getElementById('amount-input').value);
     if(!desc || !amount) return;
     const btn = document.getElementById('add-btn');
-    btn.disabled = true; btn.textContent = "Enviando...";
+    btn.disabled = true; btn.textContent = "Guardando...";
+    const expense = { action: 'add', id: Date.now(), person: currentPerson, desc, amount, cat: document.getElementById('cat-input').value, type: currentType, date: new Date().toLocaleDateString('es-MX') };
     
-    const expense = { 
-      action: 'add', id: Date.now(), person: currentPerson, desc, amount, 
-      cat: document.getElementById('cat-input').value, type: currentType, 
-      date: new Date().toLocaleDateString('es-MX') 
-    };
+    // Al añadir no esperamos respuesta para que no se trabe
+    fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(expense) });
     
-    await fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(expense) });
-    document.getElementById('desc-input').value = ''; 
-    document.getElementById('amount-input').value = '';
-    btn.disabled = false; btn.textContent = "+ Registrar Gasto";
-    setTimeout(syncFromCloud, 1500);
+    setTimeout(() => {
+      document.getElementById('desc-input').value = ''; 
+      document.getElementById('amount-input').value = '';
+      btn.disabled = false; btn.textContent = "+ Registrar Gasto";
+      syncFromCloud();
+    }, 1000);
   }
 
   async function deleteExpense(id) {
     if(!confirm("¿Borrar este gasto?")) return;
     document.getElementById('sync-status').textContent = "Borrando...";
-    await fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'delete', id: id }) });
+    fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'delete', id: id }) });
     setTimeout(syncFromCloud, 1500);
   }
 
   function render() {
     const selectedMonth = parseInt(monthFilter.value);
     const filtered = expenses.filter(e => { 
-      const part = e.date.split('/'); 
-      return parseInt(part[1]) - 1 === selectedMonth; 
+        if(!e.date) return false;
+        const part = e.date.split('/'); 
+        return parseInt(part[1]) - 1 === selectedMonth; 
     });
-    
     const totals = { jose: 0, desi: 0 };
-    filtered.forEach(e => { totals[e.person] += parseFloat(e.amount); });
+    filtered.forEach(e => { totals[e.person] += parseFloat(e.amount || 0); });
     const grandTotal = totals.jose + totals.desi;
-    
     document.getElementById('total-jose').textContent = '$' + totals.jose.toLocaleString();
     document.getElementById('total-desi').textContent = '$' + totals.desi.toLocaleString();
-    
     const bar = document.getElementById('budget-bar');
     let perc = (grandTotal / 50000) * 100;
     bar.style.width = Math.min(perc, 100) + '%';
     document.getElementById('budget-text').textContent = `$${grandTotal.toLocaleString()} / $50,000`;
-    
     bar.style.backgroundColor = grandTotal < 40000 ? 'var(--success)' : grandTotal < 45000 ? 'var(--warning)' : grandTotal < 48000 ? '#e67e22' : 'var(--danger)';
-    
     const list = document.getElementById('expense-list');
     list.innerHTML = filtered.map(e => `
       <div class="expense-item">
         <div>
-          <div style="font-weight:500; font-size:14px">${e.desc} <span class="qualifier-tag tag-${e.type}">${e.type}</span></div>
-          <div style="font-size:10px; color:var(--muted)">${e.date} · ${e.cat} · <span style="color:var(--${e.person})">${e.person.toUpperCase()}</span></div>
+          <div style="font-weight:500; font-size:14px">${e.descripción || e.desc} <span class="qualifier-tag tag-${e.tipo || e.type}">${e.tipo || e.type}</span></div>
+          <div style="font-size:10px; color:var(--muted)">${e.fecha || e.date} · ${e.categoría || e.cat} · <span style="color:var(--${e.persona || e.person})">${(e.persona || e.person).toUpperCase()}</span></div>
         </div>
         <div style="display:flex; align-items:center">
-          <div style="font-family:'DM Mono'; font-weight:500">$${parseFloat(e.amount).toLocaleString()}</div>
+          <div style="font-family:'DM Mono'; font-weight:500">$${parseFloat(e.monto || e.amount).toLocaleString()}</div>
           <div class="delete-btn" onclick="deleteExpense('${e.id}')">×</div>
         </div>
       </div>`).join('');
   }
-  
   syncFromCloud();
-  setInterval(syncFromCloud, 20000);
+  setInterval(syncFromCloud, 15000); // Sincroniza cada 15 seg
 </script>
 </body>
 </html>
