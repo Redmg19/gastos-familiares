@@ -48,7 +48,8 @@
   .tag-evitable { background: rgba(241, 196, 15, 0.15); color: #f1c40f; }
   .tag-desperdicio { background: rgba(232, 125, 125, 0.15); color: #e87d7d; }
   .delete-btn { color: var(--danger); font-size: 22px; margin-left: 15px; cursor: pointer; padding: 0 10px; }
-  .sync-status { text-align: center; font-size: 10px; color: var(--muted); margin-top: 10px; }
+  .sync-status { text-align: center; font-size: 10px; color: var(--muted); margin-top: 10px; cursor: pointer; text-decoration: underline; }
+  @media (min-width: 600px) { body { max-width: 500px; margin: 0 auto; border-left: 1px solid var(--border); border-right: 1px solid var(--border); } }
 </style>
 </head>
 <body>
@@ -67,9 +68,13 @@
   <input type="text" id="desc-input" placeholder="¿En qué gastamos?" maxlength="40">
   <input type="number" id="amount-input" placeholder="Monto ($)" inputmode="decimal">
   <select id="cat-input"><option value="🍔 Comida">🍔 Comida</option><option value="🚗 Transporte">🚗 Transporte</option><option value="🏠 Casa">🏠 Casa</option><option value="🛒 Super">🛒 Super</option><option value="🎉 Ocio">🎉 Ocio</option><option value="🌀 Otro">🌀 Otro</option></select>
-  <div class="type-toggle"><button class="type-btn active" onclick="setType(this, 'esencial')">Esencial</button><button class="type-btn" onclick="setType(this, 'evitable')">Evitable</button><button class="type-btn" onclick="setType(this, 'desperdicio')">Desperdicio</button></div>
+  <div class="type-toggle">
+    <button class="type-btn active" onclick="setType(this, 'esencial')">Esencial</button>
+    <button class="type-btn" onclick="setType(this, 'evitable')">Evitable</button>
+    <button class="type-btn" onclick="setType(this, 'desperdicio')">Desperdicio</button>
+  </div>
   <button class="add-btn jose" id="add-btn" onclick="addExpense()">+ Registrar Gasto</button>
-  <div class="sync-status" id="sync-status">Sincronizando...</div>
+  <div class="sync-status" id="sync-status" onclick="syncFromCloud()">Actualizar datos manualmente</div>
 </div>
 <div id="expense-list" style="padding: 0 20px 40px;"></div>
 <script>
@@ -81,32 +86,41 @@
   months.forEach((m, i) => { let opt = document.createElement('option'); opt.value = i; opt.textContent = m; if(i === now.getMonth()) opt.selected = true; monthFilter.appendChild(opt); });
 
   function cleanKey(str) {
+    if (!str) return "";
     return str.toString().toLowerCase()
-      .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Quita tildes
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
       .trim();
   }
 
   async function syncFromCloud() {
+    const status = document.getElementById('sync-status');
+    status.textContent = "🔄 Sincronizando...";
     try {
-      const response = await fetch(CLOUD_URL + '?nocache=' + Date.now());
+      const response = await fetch(CLOUD_URL + '?t=' + Date.now());
       const rawData = await response.json();
       if (Array.isArray(rawData)) { 
-        // Normalizar los datos que vienen de Google
         expenses = rawData.map(item => {
             let newItem = {};
             for (let key in item) { newItem[cleanKey(key)] = item[key]; }
             return newItem;
         }).reverse(); 
         render(); 
-        document.getElementById('sync-status').textContent = "Conectado"; 
+        status.textContent = "✅ Conectado (Toca para refrescar)"; 
       }
-    } catch (e) { document.getElementById('sync-status').textContent = "Sincronizando..."; }
+    } catch (e) { 
+      status.textContent = "⚠️ Error de red (Toca para reintentar)"; 
+      console.error(e);
+    }
   }
 
   function selectPerson(p) {
     currentPerson = p;
-    document.getElementById('btn-jose').className = 'person-btn' + (p === 'jose' ? ' active-jose' : '');
-    document.getElementById('btn-desi').className = 'person-btn' + (p === 'desi' ? ' active-desi' : '');
+    document.getElementById('btn-jose').className = 'person-btn active-jose';
+    document.getElementById('btn-desi').className = 'person-btn';
+    if(p === 'desi') {
+        document.getElementById('btn-jose').className = 'person-btn';
+        document.getElementById('btn-desi').className = 'person-btn active-desi';
+    }
     document.getElementById('add-btn').className = 'add-btn ' + p;
   }
 
@@ -123,35 +137,42 @@
     const btn = document.getElementById('add-btn');
     btn.disabled = true; btn.textContent = "Guardando...";
     const expense = { action: 'add', id: Date.now(), person: currentPerson, desc, amount, cat: document.getElementById('cat-input').value, type: currentType, date: new Date().toLocaleDateString('es-MX') };
-    await fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(expense) });
-    document.getElementById('desc-input').value = ''; document.getElementById('amount-input').value = '';
+    
+    try {
+        await fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(expense) });
+        document.getElementById('desc-input').value = ''; 
+        document.getElementById('amount-input').value = '';
+        setTimeout(syncFromCloud, 1000);
+    } catch(e) { alert("Error al guardar"); }
+    
     btn.disabled = false; btn.textContent = "+ Registrar Gasto";
-    setTimeout(syncFromCloud, 1500);
   }
 
   async function deleteExpense(id) {
     if(!confirm("¿Borrar este gasto?")) return;
     document.getElementById('sync-status').textContent = "Borrando...";
     await fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'delete', id: id }) });
-    setTimeout(syncFromCloud, 1500);
+    setTimeout(syncFromCloud, 1000);
   }
 
   function render() {
     const selectedMonth = parseInt(monthFilter.value);
     const filtered = expenses.filter(e => {
-        const dateVal = e.fecha || e.date;
-        if(!dateVal) return false;
-        // Manejar formato ISO o DD/MM/AAAA
-        if(dateVal.toString().includes('T')) {
-           return new Date(dateVal).getMonth() === selectedMonth;
+        let dVal = e.fecha || e.date;
+        if(!dVal) return false;
+        let mIdx = -1;
+        if(dVal.toString().includes('T')) {
+           mIdx = new Date(dVal).getMonth();
+        } else {
+           const parts = dVal.toString().split('/');
+           mIdx = parseInt(parts[1]) - 1;
         }
-        const part = dateVal.split('/');
-        return parseInt(part[part.length === 3 ? 1 : 0]) - 1 === selectedMonth;
+        return mIdx === selectedMonth;
     });
     
     const totals = { jose: 0, desi: 0 };
     filtered.forEach(e => {
-        const p = (e.persona || e.person || "").toLowerCase();
+        const p = cleanKey(e.persona || e.person);
         const m = parseFloat(e.monto || e.amount || 0);
         if(totals.hasOwnProperty(p)) totals[p] += m;
     });
@@ -159,6 +180,7 @@
     const grandTotal = totals.jose + totals.desi;
     document.getElementById('total-jose').textContent = '$' + totals.jose.toLocaleString();
     document.getElementById('total-desi').textContent = '$' + totals.desi.toLocaleString();
+    
     const bar = document.getElementById('budget-bar');
     let perc = (grandTotal / 50000) * 100;
     bar.style.width = Math.min(perc, 100) + '%';
@@ -169,8 +191,8 @@
     list.innerHTML = filtered.map(e => {
         const d = e.descripcion || e.desc || "Gasto";
         const c = e.categoria || e.cat || "Varios";
-        const t = e.tipo || e.type || "esencial";
-        const p = (e.persona || e.person || "jose").toLowerCase();
+        const t = e.tipo || e.type || "Esencial";
+        const p = (e.persona || e.person || "jose").toString().toUpperCase();
         const mon = parseFloat(e.monto || e.amount || 0);
         let f = e.fecha || e.date || "";
         if(f.includes('T')) f = new Date(f).toLocaleDateString('es-MX');
@@ -178,8 +200,8 @@
         return `
       <div class="expense-item">
         <div>
-          <div style="font-weight:500; font-size:14px">${d} <span class="qualifier-tag tag-${t.toLowerCase()}">${t}</span></div>
-          <div style="font-size:10px; color:var(--muted)">${f} · ${c} · <span style="color:var(--${p})">${p.toUpperCase()}</span></div>
+          <div style="font-weight:500; font-size:14px">${d} <span class="qualifier-tag tag-${cleanKey(t)}">${t}</span></div>
+          <div style="font-size:10px; color:var(--muted)">${f} · ${c} · <span style="color:var(--${cleanKey(p)})">${p}</span></div>
         </div>
         <div style="display:flex; align-items:center">
           <div style="font-family:'DM Mono'; font-weight:500">$${mon.toLocaleString()}</div>
@@ -189,7 +211,7 @@
     }).join('');
   }
   syncFromCloud();
-  setInterval(syncFromCloud, 20000);
+  setInterval(syncFromCloud, 30000);
 </script>
 </body>
 </html>
