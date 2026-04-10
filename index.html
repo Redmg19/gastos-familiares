@@ -33,11 +33,9 @@
   
   .btn-save { background: var(--accent); color: #000; border: none; padding: 18px; width: 100%; border-radius: 15px; font-weight: 800; font-size: 16px; }
 
-  /* Barra de Progreso Inteligente */
   .prog-bg { height: 10px; background: #222; border-radius: 5px; overflow: hidden; margin: 15px 0 5px; }
   .prog-fill { height: 100%; width: 0%; transition: 1s; }
 
-  /* Historial */
   .item { background: var(--surf); padding: 15px; border-radius: 16px; margin-bottom: 8px; border-left: 5px solid var(--muted); cursor: pointer; }
   .item.jose { border-left-color: var(--jose); }
   .item.desi { border-left-color: var(--desi); }
@@ -49,7 +47,7 @@
 
 <div id="view-main" class="view active">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-    <select id="month-filter" onchange="sync()" style="width: auto; margin:0; padding:8px 12px; font-size:14px; background:var(--surf)"></select>
+    <select id="month-filter" onchange="sync()" style="width: auto; margin:0; padding:8px 12px; font-size:14px; background:var(--surf); color:var(--text); border:1px solid var(--bord); border-radius:10px;"></select>
     <div style="font-size: 10px; color: var(--muted)">ABRIL 2026</div>
   </div>
 
@@ -61,7 +59,7 @@
         <span>Meta: <b>$50,000</b></span>
     </div>
     <div class="prog-bg"><div id="prog-bar" class="prog-fill"></div></div>
-    <div id="prog-perc" style="font-size:10px; color:var(--muted); text-align:right">0%</div>
+    <div id="prog-perc" style="font-size:10px; color:var(--muted); text-align:right">0% de la meta</div>
   </div>
 
   <div class="btn-group">
@@ -92,15 +90,15 @@
 <div id="view-list" class="view">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
     <h2 style="margin:0">Historial</h2>
-    <button onclick="exportPDF()" style="background:var(--surf); color:var(--text); border:1px solid var(--bord); padding:8px 12px; border-radius:10px; font-size:12px">📄 PDF</button>
+    <button onclick="exportPDF()" style="background:var(--surf); color:var(--text); border:1px solid var(--bord); padding:8px 12px; border-radius:10px; font-size:12px">📄 Reporte PDF</button>
   </div>
-  <input type="text" id="search" placeholder="🔍 Buscar..." oninput="render()">
+  <input type="text" id="search" placeholder="🔍 Buscar concepto..." oninput="render()">
   <div id="full-list"></div>
 </div>
 
 <nav>
   <div class="nav-item active" id="nav-main" onclick="switchView('main')">➕<br>Registrar</div>
-  <div class="nav-item" id="nav-list" onclick="switchView('list')">📜<br>Historial</div>
+  <div class="nav-item" id="nav-list" onclick="switchView('list')">📜<br>Lista</div>
 </nav>
 
 <script>
@@ -134,11 +132,9 @@
     const sum = (l) => l.reduce((a,b) => a + parseFloat(b.amount || 0), 0);
     const tG = sum(fG), tI = sum(fI);
     
-    // Balance Neto (Lo que ganaron en el mes)
     document.getElementById('neto-total').textContent = `$${(tI - tG).toLocaleString()}`;
     document.getElementById('total-gastos').textContent = `$${tG.toLocaleString()}`;
     
-    // Barra de Progreso Semáforo
     const perc = Math.min((tG / 50000) * 100, 100);
     const bar = document.getElementById('prog-bar');
     bar.style.width = perc + '%';
@@ -148,7 +144,6 @@
     else if(tG >= 40000) bar.style.background = 'var(--warn)';
     else bar.style.background = 'var(--accent)';
 
-    // Historial
     const search = document.getElementById('search').value.toLowerCase();
     const all = [...fG.map(x=>({...x, t:'g'})), ...fI.map(x=>({...x, t:'i'}))].sort((a,b)=>b.id - a.id);
     
@@ -162,8 +157,8 @@
           <span style="font-family:'DM Mono'; font-weight:bold; font-size:16px; color:${x.t==='i'?'var(--accent)':'var(--text)'}">${x.t==='i'?'+':''}$${parseFloat(x.amount).toLocaleString()}</span>
         </div>
         <div class="item-details">
-          🗓️ ${x.date} a las ${x.time || '--:--'} <br>
-          <button onclick="deleteRow('${x.id}', ${x.t==='i'})" style="color:var(--danger); border:1px solid var(--danger); background:none; padding:8px; border-radius:8px; margin-top:10px; width:100%">ELIMINAR</button>
+          🗓️ Registrado: ${x.date} a las ${x.time || '--:--'} <br>
+          <button onclick="deleteRow('${x.id}', ${x.t==='i'})" style="color:var(--danger); border:1px solid var(--danger); background:none; padding:8px; border-radius:8px; margin-top:10px; width:100%; cursor:pointer;">ELIMINAR REGISTRO</button>
         </div>
       </div>
     `).join('');
@@ -181,6 +176,7 @@
     document.getElementById('type-g').classList.toggle('active', t==='g');
     document.getElementById('type-i').classList.toggle('active', t==='i');
     document.getElementById('reg-cat').style.display = t==='g'?'block':'none';
+    document.getElementById('reg-desc').placeholder = t==='g'?'¿En qué se gastó?':'¿De qué es el ingreso?';
   }
 
   function setPerson(p) {
@@ -211,7 +207,7 @@
   }
 
   async function deleteRow(id, isIng) {
-    if(confirm("¿Borrar?")) {
+    if(confirm("¿Borrar definitivamente?")) {
       await fetch(URL, { method:'POST', mode:'no-cors', body: JSON.stringify({action:'delete', id, isIngreso: isIng}) });
       setTimeout(sync, 1000);
     }
@@ -220,9 +216,31 @@
   function exportPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    const m = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][mSelect.value];
-    doc.text(`Reporte de Finanzas - ${m} 2026`, 14, 20);
-    doc.save(`Finanzas_${m}.pdf`);
+    const month = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][mSelect.value];
+    
+    doc.setFontSize(18);
+    doc.text(`Reporte de Finanzas - ${month} 2026`, 14, 20);
+    doc.setFontSize(12);
+    doc.text(`Balance Neto: ${document.getElementById('neto-total').innerText}`, 14, 30);
+    doc.text(`Total Gastos: ${document.getElementById('total-gastos').innerText}`, 14, 38);
+    
+    const rows = [];
+    const search = document.getElementById('search').value.toLowerCase();
+    const filter = (l) => l.filter(x => (parseInt(x.date.split('/')[1]) - 1) === parseInt(mSelect.value));
+    
+    const all = [...filter(data.gastos).map(x=>({...x, t:'G'})), ...filter(data.ingresos).map(x=>({...x, t:'I'}))].sort((a,b)=>b.id - a.id);
+    
+    all.forEach(x => {
+        rows.push([x.date, x.t, x.person.toUpperCase(), x.concept || x.desc, `$${parseFloat(x.amount).toLocaleString()}`]);
+    });
+
+    doc.autoTable({
+      startY: 45,
+      head: [['Fecha', 'Tipo', 'Persona', 'Concepto', 'Monto']],
+      body: rows,
+    });
+    
+    doc.save(`Finanzas_${month}.pdf`);
   }
 
   sync();
