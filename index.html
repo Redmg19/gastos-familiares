@@ -41,6 +41,7 @@
   .item { background: var(--surface); padding: 12px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid transparent; }
   .item.g-jose { border-left-color: var(--jose); }
   .item.g-desi { border-left-color: var(--desi); }
+  .del-btn { color: var(--danger); background: none; border: none; font-size: 18px; padding: 5px 10px; cursor: pointer; margin-left: 10px; }
 </style>
 </head>
 <body>
@@ -165,6 +166,15 @@
     setTimeout(sync, 1500);
   }
 
+  async function deleteItem(id, isIngreso) {
+    if(!confirm('¿Borrar este registro?')) return;
+    const status = document.getElementById('sync-status');
+    status.textContent = "🗑️ Borrando...";
+    const body = { action:'delete', id: id, isIngreso: isIngreso };
+    await fetch(URL, { method:'POST', mode:'no-cors', body: JSON.stringify(body) });
+    setTimeout(sync, 1500);
+  }
+
   function render() {
     const m = parseInt(monthFilter.value);
     const filterM = (l) => l.filter(x => {
@@ -176,9 +186,7 @@
 
     const fG = filterM(data.gastos);
     const fI = filterM(data.ingresos);
-
     const sum = (l, p) => l.filter(x => (x.person || x.persona || '').toLowerCase() === p).reduce((a,b) => a + parseFloat(b.amount || b.monto || 0), 0);
-
     const tot = { gj: sum(fG, 'jose'), gd: sum(fG, 'desi'), ij: sum(fI, 'jose'), id: sum(fI, 'desi') };
 
     document.getElementById('in-jose').textContent = '$' + tot.ij.toLocaleString();
@@ -189,14 +197,18 @@
     document.getElementById('out-total').textContent = '$' + (tot.gj + tot.gd).toLocaleString();
 
     const list = document.getElementById('main-list');
-    const items = currentTab === 'gastos' ? fG : fI;
+    const isIng = currentTab === 'ingresos';
+    const items = isIng ? fI : fG;
     list.innerHTML = items.reverse().map(x => `
       <div class="item g-${(x.person || x.persona || 'jose').toLowerCase()}">
-        <div>
+        <div style="flex-grow:1">
           <div style="font-weight:bold">${x.concept || x.desc || x.descripcion || 'Sin nombre'}</div>
           <div style="font-size:11px; color:var(--muted)">${x.cat || x.categoria || 'Ingreso'} · ${(x.person || x.persona || 'JOSE').toUpperCase()}</div>
         </div>
-        <div style="font-family:'DM Mono'; font-weight:bold">$${parseFloat(x.amount || x.monto || 0).toLocaleString()}</div>
+        <div style="font-family:'DM Mono'; font-weight:bold; text-align:right">
+          $${parseFloat(x.amount || x.monto || 0).toLocaleString()}
+        </div>
+        <button class="del-btn" onclick="deleteItem('${x.id}', ${isIng})">×</button>
       </div>
     `).join('');
   }
