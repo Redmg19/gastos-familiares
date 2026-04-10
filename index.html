@@ -168,7 +168,7 @@
   function render() {
     const m = parseInt(monthFilter.value);
     const filterM = (l) => l.filter(x => {
-        let d = x.fecha || x.date;
+        let d = x.date || x.fecha;
         if(!d) return false;
         let idx = d.includes('T') ? new Date(d).getMonth() : parseInt(d.split('/')[1])-1;
         return idx === m;
@@ -177,7 +177,7 @@
     const fG = filterM(data.gastos);
     const fI = filterM(data.ingresos);
 
-    const sum = (l, p) => l.filter(x => (x.persona || '').toLowerCase() === p).reduce((a,b) => a + parseFloat(b.monto || 0), 0);
+    const sum = (l, p) => l.filter(x => (x.person || x.persona || '').toLowerCase() === p).reduce((a,b) => a + parseFloat(b.amount || b.monto || 0), 0);
 
     const tot = { gj: sum(fG, 'jose'), gd: sum(fG, 'desi'), ij: sum(fI, 'jose'), id: sum(fI, 'desi') };
 
@@ -191,12 +191,12 @@
     const list = document.getElementById('main-list');
     const items = currentTab === 'gastos' ? fG : fI;
     list.innerHTML = items.reverse().map(x => `
-      <div class="item g-${(x.persona || 'jose').toLowerCase()}">
+      <div class="item g-${(x.person || x.persona || 'jose').toLowerCase()}">
         <div>
-          <div style="font-weight:bold">${x.descripcion || x.concept || x.desc || 'Item'}</div>
-          <div style="font-size:11px; color:var(--muted)">${x.categoria || 'Ingreso'} · ${(x.persona || 'JOSE').toUpperCase()}</div>
+          <div style="font-weight:bold">${x.concept || x.desc || x.descripcion || 'Sin nombre'}</div>
+          <div style="font-size:11px; color:var(--muted)">${x.cat || x.categoria || 'Ingreso'} · ${(x.person || x.persona || 'JOSE').toUpperCase()}</div>
         </div>
-        <div style="font-family:'DM Mono'; font-weight:bold">$${parseFloat(x.monto || 0).toLocaleString()}</div>
+        <div style="font-family:'DM Mono'; font-weight:bold">$${parseFloat(x.amount || x.monto || 0).toLocaleString()}</div>
       </div>
     `).join('');
   }
