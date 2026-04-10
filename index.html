@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Finanzas PRO · José & Desi</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -15,141 +13,104 @@
     --accent: #2ecc71; --danger: #e87d7d;
   }
   body.light-mode {
-    --bg: #f5f5f7; --surf: #ffffff; --bord: #e5e5e5;
-    --text: #1d1d1f; --muted: #86868b;
+    --bg: #f2f2f7; --surf: #ffffff; --bord: #d1d1d6;
+    --text: #1c1c1e; --muted: #8e8e93;
   }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; margin: 0; padding-bottom: 80px; transition: 0.3s; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; margin: 0; padding-bottom: 90px; transition: 0.3s; }
   
-  /* Navegación Inferior */
-  nav { position: fixed; bottom: 0; width: 100%; background: var(--surf); border-top: 1px solid var(--bord); display: grid; grid-template-columns: 1fr 1fr 1fr; height: 70px; z-index: 100; }
-  .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); font-size: 10px; font-weight: bold; cursor: pointer; }
-  .nav-item.active { color: var(--text); }
-  .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; }
-
-  /* Contenedores de Pantalla */
-  .view { display: none; padding: 20px; animation: fadeIn 0.3s; }
+  nav { position: fixed; bottom: 0; width: 100%; background: var(--surf); border-top: 1px solid var(--bord); display: grid; grid-template-columns: 1fr 1fr 1fr; height: 75px; z-index: 100; }
+  .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); font-size: 11px; cursor: pointer; }
+  .nav-item.active { color: var(--desi); font-weight: bold; }
+  
+  .view { display: none; padding: 20px; animation: fadeIn 0.2s; }
   .view.active { display: block; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-  /* Encabezado */
-  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-  .header h1 { font-size: 24px; margin: 0; }
-  .config-btn { background: var(--surf); border: 1px solid var(--bord); padding: 8px; border-radius: 12px; cursor: pointer; }
-
-  /* Cards e Inputs */
   .card { background: var(--surf); border: 1px solid var(--bord); border-radius: 20px; padding: 20px; margin-bottom: 20px; }
-  input, select { background: var(--bg); border: 1px solid var(--bord); border-radius: 12px; padding: 15px; color: var(--text); width: 100%; margin-bottom: 15px; font-size: 16px; }
-  .btn-main { background: var(--text); color: var(--bg); border: none; padding: 18px; width: 100%; border-radius: 15px; font-weight: bold; cursor: pointer; }
+  input, select { background: var(--bg); border: 1px solid var(--bord); border-radius: 12px; padding: 14px; color: var(--text); width: 100%; margin-bottom: 12px; font-size: 16px; }
   
-  /* Estilos específicos Inicio */
-  .chart-container { position: relative; height: 250px; margin-bottom: 20px; }
-  .comparativa { font-size: 12px; margin-top: 10px; }
-  .trend-up { color: var(--danger); }
-  .trend-down { color: var(--accent); }
+  .btn-group { display: flex; gap: 10px; margin-bottom: 15px; }
+  .btn-opt { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid var(--bord); background: var(--surf); color: var(--text); font-weight: bold; cursor: pointer; transition: 0.2s; }
+  
+  /* Corregido: Resaltado de botones */
+  .btn-opt.active { background: var(--text); color: var(--bg); }
+  
+  .btn-save { background: var(--accent); color: #000; border: none; padding: 16px; width: 100%; border-radius: 15px; font-weight: bold; font-size: 16px; }
 
-  /* Lista Historial */
-  .search-bar { position: sticky; top: 0; background: var(--bg); padding: 10px 0; z-index: 10; }
-  .item { background: var(--surf); padding: 15px; border-radius: 15px; margin-bottom: 10px; border-left: 4px solid var(--muted); cursor: pointer; }
+  .item { background: var(--surf); padding: 15px; border-radius: 15px; margin-bottom: 8px; border-left: 5px solid var(--muted); cursor: pointer; }
   .item.jose { border-left-color: var(--jose); }
   .item.desi { border-left-color: var(--desi); }
-  .item-detail { display: none; font-size: 12px; color: var(--muted); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--bord); }
-  .item.expanded .item-detail { display: block; }
+  .item-details { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--bord); font-size: 12px; color: var(--muted); }
+  .item.open .item-details { display: block; }
 
-  /* Modo Privacidad */
-  .privacy-active .blur-text { filter: blur(6px); pointer-events: none; }
+  .blur-text { transition: 0.3s; }
+  .privacy-active .blur-text { filter: blur(8px); }
+  #config-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
 </style>
 </head>
-<body class="dark-mode">
+<body>
 
 <div id="view-home" class="view active">
-  <div class="header">
-    <h1>Resumen</h1>
-    <div class="config-btn" onclick="openConfig()">⚙️</div>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <h2 style="margin:0">Resumen</h2>
+    <button onclick="document.getElementById('config-overlay').style.display='flex'" style="background:none; border:none; font-size:24px;">⚙️</button>
   </div>
-  
   <select id="month-filter" onchange="sync()"></select>
-  
-  <div class="card">
-    <div style="font-size: 12px; color: var(--muted);">Balance Neto</div>
-    <div id="neto-total" class="blur-text" style="font-size: 32px; font-weight: bold; margin: 10px 0;">$0</div>
-    <div id="comp-text" class="comparativa">Comparando con mes pasado...</div>
+  <div class="card" style="text-align:center">
+    <span style="font-size:11px; color:var(--muted); letter-spacing:1px">BALANCE NETO</span>
+    <h1 id="neto-total" class="blur-text" style="margin:10px 0; font-size:38px">$0</h1>
   </div>
-
-  <div class="card">
-    <div class="chart-container"><canvas id="expenseChart"></canvas></div>
-  </div>
+  <div class="card"><canvas id="expenseChart"></canvas></div>
 </div>
 
 <div id="view-add" class="view">
-  <div class="header"><h1>Registrar</h1></div>
-  
-  <div class="tabs" style="display:flex; gap:10px; margin-bottom:20px;">
-    <button id="type-g" class="btn-main" style="background:var(--surf); color:var(--text)" onclick="switchReg('g')">Gasto</button>
-    <button id="type-i" class="btn-main" style="background:var(--surf); color:var(--text)" onclick="switchReg('i')">Ingreso</button>
+  <h2>Registrar</h2>
+  <div class="btn-group">
+    <button id="type-g" class="btn-opt active" onclick="switchReg('g')">GASTO</button>
+    <button id="type-i" class="btn-opt" onclick="switchReg('i')">INGRESO</button>
   </div>
-
   <div class="card">
-    <div style="display:flex; gap:10px; margin-bottom:15px;">
-      <button id="p-jose" class="btn-main" style="background:var(--jose); color:#000" onclick="setPerson('jose')">José</button>
-      <button id="p-desi" class="btn-main" style="background:var(--surf); color:var(--text)" onclick="setPerson('desi')">Desi</button>
+    <div class="btn-group">
+      <button id="p-jose" class="btn-opt active" onclick="setPerson('jose')">JOSÉ</button>
+      <button id="p-desi" class="btn-opt" onclick="setPerson('desi')">DESI</button>
     </div>
-    
-    <input type="text" id="reg-desc" placeholder="¿En qué?">
+    <input type="text" id="reg-desc" placeholder="¿Qué fue?">
     <input type="number" id="reg-amount" placeholder="Monto $" inputmode="decimal">
-    
-    <div id="cat-wrapper">
-      <select id="reg-cat">
-        <option value="🍔 Comida">🍔 Comida</option>
-        <option value="🚗 Chevy">🚗 Chevy</option>
-        <option value="🛒 Súper">🛒 Súper</option>
-        <option value="💡 Servicios">💡 Servicios</option>
-        <option value="📱 TikTok/Ads">📱 TikTok/Ads</option>
-        <option value="🌀 Otros">🌀 Otros</option>
-      </select>
-    </div>
-    
-    <button id="save-btn" class="btn-main" onclick="save()">GUARDAR REGISTRO</button>
+    <select id="reg-cat">
+      <option value="🍔 Comida Calle">🍔 Comida Calle</option>
+      <option value="🛒 Súper">🛒 Súper</option>
+      <option value="🚗 Chevy">🚗 Chevy</option>
+      <option value="💡 Servicios">💡 Servicios</option>
+      <option value="📱 TikTok Ads">📱 TikTok Ads</option>
+      <option value="🙏 Diezmo/Ofrenda">🙏 Diezmo/Ofrenda</option>
+      <option value="🌀 Otros">🌀 Otros</option>
+    </select>
+    <button id="save-btn" class="btn-save" onclick="save()">GUARDAR REGISTRO</button>
   </div>
+  <h4 style="color:var(--muted); margin-bottom:10px">RECIENTES</h4>
+  <div id="mini-list"></div>
 </div>
 
 <div id="view-list" class="view">
-  <div class="header"><h1>Historial</h1></div>
-  <div class="search-bar">
-    <input type="text" id="search" placeholder="Buscar concepto o categoría..." oninput="render()">
-  </div>
-  <div id="list-items"></div>
+  <h2>Historial</h2>
+  <input type="text" id="search" placeholder="🔍 Buscar..." oninput="render()">
+  <div id="full-list" style="margin-top:15px"></div>
 </div>
 
-<div id="config-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:200; padding:40px 20px;">
-  <div class="card" style="max-width:400px; margin:auto;">
+<div id="config-overlay" onclick="this.style.display='none'">
+  <div class="card" style="width:100%; max-width:350px" onclick="event.stopPropagation()">
     <h3>Configuración</h3>
-    <button class="btn-main" style="background:var(--bg); color:var(--text); margin-bottom:10px;" onclick="toggleTheme()">🌓 Cambiar Modo Día/Noche</button>
-    <button class="btn-main" style="background:var(--bg); color:var(--text); margin-bottom:10px;" onclick="togglePrivacy()">👁️ Modo Privacidad</button>
-    <button class="btn-main" style="background:var(--bg); color:var(--text); margin-bottom:10px;" onclick="exportPDF()">📄 Exportar PDF Mensual</button>
-    
-    <div style="margin: 20px 0;">
-      <label style="font-size:12px; color:var(--muted)">Presupuesto Mensual ($)</label>
-      <input type="number" id="config-budget" value="50000" onchange="render()">
-    </div>
-    
-    <button class="btn-main" style="background:var(--danger); color:#fff" onclick="closeConfig()">Cerrar</button>
+    <button class="btn-opt" style="width:100%; margin-bottom:10px" onclick="toggleTheme()">🌓 Modo Día/Noche</button>
+    <button class="btn-opt" style="width:100%; margin-bottom:10px" onclick="togglePrivacy()">👁️ Modo Privacidad</button>
+    <button class="btn-opt" style="width:100%; color:var(--danger)" onclick="document.getElementById('config-overlay').style.display='none'">CERRAR</button>
   </div>
 </div>
 
 <nav>
-  <div class="nav-item active" id="nav-home" onclick="switchView('home')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-    Inicio
-  </div>
-  <div class="nav-item" id="nav-add" onclick="switchView('add')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
-    Registrar
-  </div>
-  <div class="nav-item" id="nav-list" onclick="switchView('list')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-    Historial
-  </div>
+  <div class="nav-item active" id="nav-home" onclick="switchView('home')">🏠<br>Inicio</div>
+  <div class="nav-item" id="nav-add" onclick="switchView('add')">➕<br>Añadir</div>
+  <div class="nav-item" id="nav-list" onclick="switchView('list')">📜<br>Lista</div>
 </nav>
 
 <script>
@@ -157,10 +118,8 @@
   let data = { gastos: [], ingresos: [] };
   let user = 'jose', regType = 'g', myChart = null;
 
-  // Inicializar meses
-  const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   const mSelect = document.getElementById('month-filter');
-  months.forEach((m,i) => {
+  ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'].forEach((m,i)=>{
     let opt = document.createElement('option'); opt.value = i; opt.textContent = m;
     if(i === new Date().getMonth()) opt.selected = true;
     mSelect.appendChild(opt);
@@ -171,149 +130,112 @@
       const resp = await fetch(URL + "?t=" + Date.now());
       data = await resp.json();
       render();
-    } catch(e) { console.error("Error sync"); }
+    } catch(e) { console.log("Sync Error"); }
   }
 
   function render() {
     const m = parseInt(mSelect.value);
     const filter = (l) => l.filter(x => {
-      let d = x.date || "";
-      let month = d.includes('/') ? parseInt(d.split('/')[1])-1 : new Date(x.date).getMonth();
-      return month === m;
+      if(!x.date) return false;
+      const parts = x.date.split('/');
+      return (parseInt(parts[1]) - 1) === m;
     });
 
-    const fG = filter(data.gastos);
-    const fI = filter(data.ingresos);
+    const fG = filter(data.gastos), fI = filter(data.ingresos);
     const sum = (l) => l.reduce((a,b) => a + parseFloat(b.amount || 0), 0);
+    const tG = sum(fG), tI = sum(fI);
+    document.getElementById('neto-total').textContent = `$${(tI - tG).toLocaleString()}`;
     
-    const totG = sum(fG), totI = sum(fI);
-    document.getElementById('neto-total').textContent = `$${(totI - totG).toLocaleString()}`;
-    
-    // Comparativa (Lógica simple contra el mes anterior disponible)
-    const prevMonth = m === 0 ? 11 : m - 1;
-    const prevG = sum(data.gastos.filter(x => {
-      let d = x.date || "";
-      return (d.includes('/') ? parseInt(d.split('/')[1])-1 : new Date(x.date).getMonth()) === prevMonth;
-    }));
-    const diff = totG - prevG;
-    const compEl = document.getElementById('comp-text');
-    if(prevG > 0) {
-        compEl.innerHTML = diff > 0 ? `<span class="trend-up">▲ Gastaste $${diff.toLocaleString()} más que el mes pasado</span>` : `<span class="trend-down">▼ Gastaste $${Math.abs(diff).toLocaleString()} menos que el mes pasado</span>`;
-    }
-
     // Gráfico
-    const cats = [...new Set(fG.map(x => x.cat))];
-    const catData = cats.map(c => sum(fG.filter(x => x.cat === c)));
-    
+    const catTotals = {};
+    fG.forEach(x => { let c = x.cat || "Otros"; catTotals[c] = (catTotals[c] || 0) + parseFloat(x.amount || 0); });
     if(myChart) myChart.destroy();
     myChart = new Chart(document.getElementById('expenseChart'), {
       type: 'doughnut',
       data: {
-        labels: cats,
-        datasets: [{ data: catData, backgroundColor: ['#e8c97d','#7db8e8','#2ecc71','#e87d7d','#bb86fc','#ff9f43'] }]
+        labels: Object.keys(catTotals),
+        datasets: [{ data: Object.values(catTotals), backgroundColor: ['#e8c97d','#7db8e8','#2ecc71','#e87d7d','#bb86fc','#ff9f43'] }]
       },
       options: { plugins: { legend: { position: 'bottom', labels: { color: getComputedStyle(document.body).getPropertyValue('--text') } } } }
     });
 
-    // Historial
+    // Listas
     const search = document.getElementById('search').value.toLowerCase();
-    const items = [...fG.map(x=>({...x, t:'g'})), ...fI.map(x=>({...x, t:'i'}))].sort((a,b)=>b.id - a.id);
-    document.getElementById('list-items').innerHTML = items.filter(x => (x.desc || x.concept || '').toLowerCase().includes(search) || (x.cat || '').toLowerCase().includes(search))
-      .map(x => `
-        <div class="item ${x.person.toLowerCase()} ${x.t === 'i' ? 'ingreso' : ''}" onclick="this.classList.toggle('expanded')">
-          <div style="display:flex; justify-content:space-between">
-            <b>${x.concept || x.desc}</b>
-            <span style="font-family:'DM Mono'; color:${x.t==='i'?'var(--accent)':'var(--text)'}">${x.t==='i'?'+':''}$${parseFloat(x.amount).toLocaleString()}</span>
+    const all = [...fG.map(x=>({...x, t:'g'})), ...fI.map(x=>({...x, t:'i'}))].sort((a,b)=>b.id - a.id);
+    
+    const html = (items) => items.filter(x=>(x.desc||x.concept||"").toLowerCase().includes(search)).map(x=>`
+      <div class="item ${x.person.toLowerCase()}" onclick="this.classList.toggle('open')">
+        <div style="display:flex; justify-content:space-between; align-items:center">
+          <div>
+            <b>${x.concept || x.desc || "Sin nombre"}</b>
+            <span style="font-size:10px; color:var(--muted)">${x.cat || 'Ingreso'} · ${x.person.toUpperCase()}</span>
           </div>
-          <div style="font-size:10px; color:var(--muted)">${x.cat || 'Ingreso'} · ${x.person.toUpperCase()}</div>
-          <div class="item-detail">
-            📅 Fecha: ${x.date} <br> ⏰ Hora: ${x.time || 'N/A'} <br>
-            <button onclick="deleteRow('${x.id}', ${x.t==='i'})" style="color:var(--danger); border:none; background:none; padding:10px 0; font-weight:bold">ELIMINAR REGISTRO</button>
-          </div>
+          <span style="font-family:'DM Mono'; font-weight:bold; color:${x.t==='i'?'var(--accent)':'var(--text)'}">${x.t==='i'?'+':''}$${parseFloat(x.amount).toLocaleString()}</span>
         </div>
-      `).join('');
+        <div class="item-details">
+          📅 Fecha: ${x.date} <br> ⏰ Hora: ${x.time || 'N/A'} <br>
+          <button onclick="deleteRow('${x.id}', ${x.t==='i'})" style="color:var(--danger); border:none; background:none; padding:10px 0; font-weight:bold">ELIMINAR</button>
+        </div>
+      </div>
+    `).join('');
+
+    document.getElementById('full-list').innerHTML = html(all);
+    document.getElementById('mini-list').innerHTML = html(all.slice(0, 5));
   }
 
-  // Funciones de UI
   function switchView(v) {
-    document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-    document.getElementById('view-' + v).classList.add('active');
-    document.getElementById('nav-' + v).classList.add('active');
+    document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+    document.getElementById('view-'+v).classList.add('active');
+    document.getElementById('nav-'+v).classList.add('active');
   }
 
-  function switchReg(type) {
-    regType = type;
-    document.getElementById('type-g').style.background = type === 'g' ? 'var(--text)' : 'var(--surf)';
-    document.getElementById('type-i').style.background = type === 'i' ? 'var(--text)' : 'var(--surf)';
-    document.getElementById('cat-wrapper').style.display = type === 'g' ? 'block' : 'none';
+  function switchReg(t) {
+    regType = t;
+    document.getElementById('type-g').classList.toggle('active', t==='g');
+    document.getElementById('type-i').classList.toggle('active', t==='i');
+    document.getElementById('reg-cat').style.display = t==='g'?'block':'none';
   }
 
   function setPerson(p) {
     user = p;
-    document.getElementById('p-jose').style.background = p === 'jose' ? 'var(--jose)' : 'var(--surf)';
-    document.getElementById('p-desi').style.background = p === 'desi' ? 'var(--desi)' : 'var(--surf)';
-    document.getElementById('p-jose').style.color = p === 'jose' ? '#000' : 'var(--text)';
-    document.getElementById('p-desi').style.color = p === 'desi' ? '#000' : 'var(--text)';
+    document.getElementById('p-jose').classList.toggle('active', p==='jose');
+    document.getElementById('p-desi').classList.toggle('active', p==='desi');
   }
 
   async function save() {
     const desc = document.getElementById('reg-desc').value;
     const amount = document.getElementById('reg-amount').value;
     if(!desc || !amount) return;
-    
     const btn = document.getElementById('save-btn');
-    btn.disabled = true; btn.textContent = "ENVIANDO... ✅";
+    btn.disabled = true; btn.textContent = "GUARDANDO...";
     
-    const isG = regType === 'g';
     const body = {
-      action: isG ? 'add' : 'add_ingreso',
+      action: regType==='g'?'add':'add_ingreso',
       id: Date.now(),
       person: user,
-      [isG ? 'desc' : 'concept']: desc,
+      [regType==='g'?'desc':'concept']: desc,
       amount: amount,
-      cat: isG ? document.getElementById('reg-cat').value : 'Ingreso',
-      date: new Date().toLocaleDateString('es-MX')
+      cat: regType==='g'?document.getElementById('reg-cat').value:'Ingreso'
     };
-
-    await fetch(URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(body) });
-    
-    setTimeout(() => {
-      document.getElementById('reg-desc').value = '';
-      document.getElementById('reg-amount').value = '';
-      btn.disabled = false; btn.textContent = "GUARDAR REGISTRO";
-      sync();
-    }, 1000);
+    await fetch(URL, { method:'POST', mode:'no-cors', body: JSON.stringify(body) });
+    document.getElementById('reg-desc').value = ''; document.getElementById('reg-amount').value = '';
+    btn.disabled = false; btn.textContent = "GUARDADO ✅";
+    setTimeout(()=>{ btn.textContent="GUARDAR REGISTRO"; sync(); }, 1200);
   }
 
   async function deleteRow(id, isIng) {
-    if(confirm("¿Borrar?")) {
-        await fetch(URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({action:'delete', id, isIngreso: isIng}) });
-        setTimeout(sync, 1000);
+    if(confirm("¿Borrar este registro?")) {
+      await fetch(URL, { method:'POST', mode:'no-cors', body: JSON.stringify({action:'delete', id, isIngreso: isIng}) });
+      setTimeout(sync, 1000);
     }
   }
 
-  // Configuración
-  function openConfig() { document.getElementById('config-overlay').style.display = 'block'; }
-  function closeConfig() { document.getElementById('config-overlay').style.display = 'none'; }
   function toggleTheme() { document.body.classList.toggle('light-mode'); render(); }
   function togglePrivacy() { document.body.classList.toggle('privacy-active'); }
-
-  async function exportPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.text(`Reporte de Finanzas - ${months[mSelect.value]}`, 14, 20);
-    
-    const items = document.getElementById('list-items').innerText.split('\n').filter(t => t.trim() !== "");
-    doc.autoTable({
-      startY: 30,
-      head: [['Concepto', 'Monto']],
-      body: items.map(line => [line, ""]) // Simplificado para el ejemplo
-    });
-    doc.save(`Finanzas_${months[mSelect.value]}.pdf`);
-  }
-
+  
   sync();
+  setInterval(sync, 30000);
 </script>
 </body>
 </html>
