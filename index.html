@@ -11,10 +11,14 @@
   :root {
     --bg: #0a0a0a; --surf: #161616; --bord: #262626;
     --jose: #e8c97d; --desi: #7db8e8; --text: #f0ede8; --muted: #777;
-    --accent: #2ecc71; --danger: #e87d7d; --warn: #f39c12;
+    --accent: #2ecc71; --danger: #e87d7d; --warn: #f39c12; --btn-text: #fff;
+  }
+  body.light-mode {
+    --bg: #f2f2f7; --surf: #ffffff; --bord: #d1d1d6;
+    --text: #1c1c1e; --muted: #8e8e93; --btn-text: #fff;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; margin: 0; padding-bottom: 90px; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; margin: 0; padding-bottom: 90px; transition: 0.3s; }
   
   nav { position: fixed; bottom: 0; width: 100%; background: var(--surf); border-top: 1px solid var(--bord); display: grid; grid-template-columns: 1fr 1fr; height: 75px; z-index: 100; }
   .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); font-size: 12px; cursor: pointer; }
@@ -28,12 +32,15 @@
   input, select { background: var(--bg); border: 1px solid var(--bord); border-radius: 12px; padding: 14px; color: var(--text); width: 100%; margin-bottom: 12px; font-size: 16px; outline: none; }
   
   .btn-group { display: flex; gap: 8px; margin-bottom: 15px; }
-  .btn-opt { flex: 1; padding: 14px; border-radius: 12px; border: 1px solid var(--bord); background: var(--surf); color: var(--text); font-weight: bold; cursor: pointer; font-size: 13px; }
-  .btn-opt.active { background: var(--text); color: var(--bg); }
+  .btn-opt { flex: 1; padding: 14px; border-radius: 12px; border: 1px solid var(--bord); background: var(--surf); color: var(--text); font-weight: bold; cursor: pointer; font-size: 13px; transition: 0.2s; }
   
+  /* Arreglo de contraste de texto */
+  .btn-opt.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+  body.light-mode .btn-opt.active { background: #000; color: #fff; }
+
   .btn-save { background: var(--accent); color: #000; border: none; padding: 18px; width: 100%; border-radius: 15px; font-weight: 800; font-size: 16px; }
 
-  .prog-bg { height: 10px; background: #222; border-radius: 5px; overflow: hidden; margin: 15px 0 5px; }
+  .prog-bg { height: 10px; background: #333; border-radius: 5px; overflow: hidden; margin: 15px 0 5px; }
   .prog-fill { height: 100%; width: 0%; transition: 1s; }
 
   .item { background: var(--surf); padding: 15px; border-radius: 16px; margin-bottom: 8px; border-left: 5px solid var(--muted); cursor: pointer; }
@@ -41,14 +48,16 @@
   .item.desi { border-left-color: var(--desi); }
   .item-details { display: none; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--bord); font-size: 12px; color: var(--muted); }
   .item.open .item-details { display: block; }
+
+  .theme-toggle { background: var(--surf); border: 1px solid var(--bord); padding: 8px 12px; border-radius: 12px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
 </style>
 </head>
-<body>
+<body class="dark-mode">
 
 <div id="view-main" class="view active">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
     <select id="month-filter" onchange="sync()" style="width: auto; margin:0; padding:8px 12px; font-size:14px; background:var(--surf); color:var(--text); border:1px solid var(--bord); border-radius:10px;"></select>
-    <div style="font-size: 10px; color: var(--muted)">ABRIL 2026</div>
+    <button class="theme-toggle" onclick="toggleTheme()" id="theme-icon">🌙</button>
   </div>
 
   <div class="card" style="text-align:center;">
@@ -56,10 +65,10 @@
     <h1 id="neto-total" style="margin:8px 0; font-size:42px;">$0</h1>
     <div style="display:flex; justify-content:space-between; font-size:12px; margin-top:10px;">
         <span>Gastos: <b id="total-gastos">$0</b></span>
-        <span>Meta: <b>$50,000</b></span>
+        <span>Límite: <b>$50,000</b></span>
     </div>
     <div class="prog-bg"><div id="prog-bar" class="prog-fill"></div></div>
-    <div id="prog-perc" style="font-size:10px; color:var(--muted); text-align:right">0% de la meta</div>
+    <div id="prog-perc" style="font-size:10px; color:var(--muted); text-align:right">0% del límite</div>
   </div>
 
   <div class="btn-group">
@@ -92,7 +101,7 @@
     <h2 style="margin:0">Historial</h2>
     <button onclick="exportPDF()" style="background:var(--surf); color:var(--text); border:1px solid var(--bord); padding:8px 12px; border-radius:10px; font-size:12px">📄 Reporte PDF</button>
   </div>
-  <input type="text" id="search" placeholder="🔍 Buscar concepto..." oninput="render()">
+  <input type="text" id="search" placeholder="🔍 Buscar..." oninput="render()">
   <div id="full-list"></div>
 </div>
 
@@ -138,7 +147,7 @@
     const perc = Math.min((tG / 50000) * 100, 100);
     const bar = document.getElementById('prog-bar');
     bar.style.width = perc + '%';
-    document.getElementById('prog-perc').textContent = Math.round(perc) + '% de la meta';
+    document.getElementById('prog-perc').textContent = Math.round(perc) + '% del límite';
     
     if(tG >= 45000) bar.style.background = 'var(--danger)';
     else if(tG >= 40000) bar.style.background = 'var(--warn)';
@@ -152,7 +161,7 @@
         <div style="display:flex; justify-content:space-between; align-items:center">
           <div>
             <b>${x.t==='i'?'↗':'↘'} ${x.concept || x.desc}</b>
-            <span style="font-size:11px; color:var(--muted)">${x.cat || 'INGRESO'} · ${x.person.toUpperCase()}</span>
+            <span style="font-size:11px; color:var(--muted)">${x.t==='i'?'INGRESO':'GASTO'} · ${x.person.toUpperCase()}</span>
           </div>
           <span style="font-family:'DM Mono'; font-weight:bold; font-size:16px; color:${x.t==='i'?'var(--accent)':'var(--text)'}">${x.t==='i'?'+':''}$${parseFloat(x.amount).toLocaleString()}</span>
         </div>
@@ -176,7 +185,6 @@
     document.getElementById('type-g').classList.toggle('active', t==='g');
     document.getElementById('type-i').classList.toggle('active', t==='i');
     document.getElementById('reg-cat').style.display = t==='g'?'block':'none';
-    document.getElementById('reg-desc').placeholder = t==='g'?'¿En qué se gastó?':'¿De qué es el ingreso?';
   }
 
   function setPerson(p) {
@@ -213,33 +221,18 @@
     }
   }
 
+  function toggleTheme() {
+    const b = document.body;
+    b.classList.toggle('light-mode');
+    document.getElementById('theme-icon').textContent = b.classList.contains('light-mode') ? '☀️' : '🌙';
+    render();
+  }
+
   function exportPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     const month = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][mSelect.value];
-    
-    doc.setFontSize(18);
     doc.text(`Reporte de Finanzas - ${month} 2026`, 14, 20);
-    doc.setFontSize(12);
-    doc.text(`Balance Neto: ${document.getElementById('neto-total').innerText}`, 14, 30);
-    doc.text(`Total Gastos: ${document.getElementById('total-gastos').innerText}`, 14, 38);
-    
-    const rows = [];
-    const search = document.getElementById('search').value.toLowerCase();
-    const filter = (l) => l.filter(x => (parseInt(x.date.split('/')[1]) - 1) === parseInt(mSelect.value));
-    
-    const all = [...filter(data.gastos).map(x=>({...x, t:'G'})), ...filter(data.ingresos).map(x=>({...x, t:'I'}))].sort((a,b)=>b.id - a.id);
-    
-    all.forEach(x => {
-        rows.push([x.date, x.t, x.person.toUpperCase(), x.concept || x.desc, `$${parseFloat(x.amount).toLocaleString()}`]);
-    });
-
-    doc.autoTable({
-      startY: 45,
-      head: [['Fecha', 'Tipo', 'Persona', 'Concepto', 'Monto']],
-      body: rows,
-    });
-    
     doc.save(`Finanzas_${month}.pdf`);
   }
 
