@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Finanzas · José & Desi</title>
+<title>Finanzas José & Desi</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono&display=swap" rel="stylesheet">
@@ -11,14 +11,10 @@
   :root {
     --bg: #0a0a0a; --surf: #161616; --bord: #262626;
     --jose: #e8c97d; --desi: #7db8e8; --text: #f0ede8; --muted: #777;
-    --accent: #2ecc71; --danger: #e87d7d; --warn: #f39c12; --btn-text: #fff;
-  }
-  body.light-mode {
-    --bg: #f2f2f7; --surf: #ffffff; --bord: #d1d1d6;
-    --text: #1c1c1e; --muted: #8e8e93; --btn-text: #fff;
+    --accent: #2ecc71; --danger: #e87d7d; --warn: #f39c12;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; margin: 0; padding-bottom: 90px; transition: 0.3s; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; margin: 0; padding-bottom: 90px; overflow-x: hidden; }
   
   nav { position: fixed; bottom: 0; width: 100%; background: var(--surf); border-top: 1px solid var(--bord); display: grid; grid-template-columns: 1fr 1fr; height: 75px; z-index: 100; }
   .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); font-size: 12px; cursor: pointer; }
@@ -32,43 +28,40 @@
   input, select { background: var(--bg); border: 1px solid var(--bord); border-radius: 12px; padding: 14px; color: var(--text); width: 100%; margin-bottom: 12px; font-size: 16px; outline: none; }
   
   .btn-group { display: flex; gap: 8px; margin-bottom: 15px; }
-  .btn-opt { flex: 1; padding: 14px; border-radius: 12px; border: 1px solid var(--bord); background: var(--surf); color: var(--text); font-weight: bold; cursor: pointer; font-size: 13px; transition: 0.2s; }
+  .btn-opt { flex: 1; padding: 14px; border-radius: 12px; border: 1px solid var(--bord); background: var(--surf); color: var(--text); font-weight: bold; cursor: pointer; font-size: 13px; }
+  .btn-opt.active { background: var(--text); color: var(--bg); }
   
-  /* Arreglo de contraste de texto */
-  .btn-opt.active { background: var(--text); color: var(--bg); border-color: var(--text); }
-  body.light-mode .btn-opt.active { background: #000; color: #fff; }
-
   .btn-save { background: var(--accent); color: #000; border: none; padding: 18px; width: 100%; border-radius: 15px; font-weight: 800; font-size: 16px; }
 
-  .prog-bg { height: 10px; background: #333; border-radius: 5px; overflow: hidden; margin: 15px 0 5px; }
-  .prog-fill { height: 100%; width: 0%; transition: 1s; }
+  /* Barra Semáforo */
+  .prog-bg { height: 12px; background: #222; border-radius: 6px; overflow: hidden; margin: 15px 0 5px; }
+  .prog-fill { height: 100%; width: 0%; transition: 1.5s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
 
+  /* Historial */
   .item { background: var(--surf); padding: 15px; border-radius: 16px; margin-bottom: 8px; border-left: 5px solid var(--muted); cursor: pointer; }
   .item.jose { border-left-color: var(--jose); }
   .item.desi { border-left-color: var(--desi); }
-  .item-details { display: none; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--bord); font-size: 12px; color: var(--muted); }
+  .item-details { display: none; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--bord); font-size: 12px; color: var(--muted); line-height: 1.6; }
   .item.open .item-details { display: block; }
-
-  .theme-toggle { background: var(--surf); border: 1px solid var(--bord); padding: 8px 12px; border-radius: 12px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
 </style>
 </head>
-<body class="dark-mode">
+<body>
 
 <div id="view-main" class="view active">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
     <select id="month-filter" onchange="sync()" style="width: auto; margin:0; padding:8px 12px; font-size:14px; background:var(--surf); color:var(--text); border:1px solid var(--bord); border-radius:10px;"></select>
-    <button class="theme-toggle" onclick="toggleTheme()" id="theme-icon">🌙</button>
+    <div id="sync-icon" style="font-size: 12px; color: var(--muted)">● Online</div>
   </div>
 
   <div class="card" style="text-align:center;">
-    <span style="font-size:11px; color:var(--muted); letter-spacing:1px;">GANANCIA NETO (MES)</span>
-    <h1 id="neto-total" style="margin:8px 0; font-size:42px;">$0</h1>
+    <span style="font-size:11px; color:var(--muted); letter-spacing:1px; text-transform:uppercase">Balance Disponible</span>
+    <h1 id="neto-total" style="margin:8px 0; font-size:42px; letter-spacing:-1px;">$0</h1>
     <div style="display:flex; justify-content:space-between; font-size:12px; margin-top:10px;">
-        <span>Gastos: <b id="total-gastos">$0</b></span>
-        <span>Límite: <b>$50,000</b></span>
+        <span style="color:var(--danger)">Gastos: <b id="total-gastos">$0</b></span>
+        <span style="color:var(--accent)">Ingresos: <b id="total-ingresos">$0</b></span>
     </div>
     <div class="prog-bg"><div id="prog-bar" class="prog-fill"></div></div>
-    <div id="prog-perc" style="font-size:10px; color:var(--muted); text-align:right">0% del límite</div>
+    <div id="prog-perc" style="font-size:10px; color:var(--muted); text-align:right">Cargando...</div>
   </div>
 
   <div class="btn-group">
@@ -83,15 +76,41 @@
     </div>
     <input type="text" id="reg-desc" placeholder="¿En qué se gastó?">
     <input type="number" id="reg-amount" placeholder="0.00" inputmode="decimal">
-    <select id="reg-cat">
-      <option value="🍔 Comida Calle">🍔 Comida Calle</option>
-      <option value="🛒 Súper">🛒 Súper</option>
-      <option value="🚗 Chevy">🚗 Chevy</option>
-      <option value="💡 Servicios">💡 Servicios</option>
-      <option value="📱 TikTok Ads">📱 TikTok Ads</option>
-      <option value="🙏 Diezmo/Ofrenda">🙏 Diezmo/Ofrenda</option>
-      <option value="🌀 Otros">🌀 Otros</option>
-    </select>
+    
+    <div id="cat-wrapper">
+      <select id="reg-cat">
+        <optgroup label="📌 Fijos / Compromisos">
+          <option value="Diezmo 🙏">Diezmo 🙏</option>
+          <option value="Renta 🏠">Renta 🏠</option>
+          <option value="Mercado 🛒">Mercado 🛒</option>
+          <option value="Eloy 👶">Eloy 👶</option>
+          <option value="Camioneta 🚘">Camioneta (Ahorro) 🚘</option>
+          <option value="TikTok Ads 📱">TikTok Ads 📱</option>
+        </optgroup>
+        <optgroup label="🏠 Servicios Casa">
+          <option value="Gasolina ⛽">Gasolina ⛽</option>
+          <option value="Luz 💡">Luz 💡</option>
+          <option value="Agua Potable 💧">Agua Potable 💧</option>
+          <option value="Agua Llave 🚿">Agua Llave 🚿</option>
+          <option value="Gas 🔥">Gas 🔥</option>
+          <option value="Teléfono/Internet 🌐">Teléfono/Internet 🌐</option>
+          <option value="Seguro Carro 🛡️">Seguro Carro 🛡️</option>
+        </optgroup>
+        <optgroup label="💸 Variables">
+          <option value="Salidas Fam. 👨‍👩‍👧">Salidas Fam. 👨‍👩‍👧</option>
+          <option value="Estacionamiento 🅿️">Estacionamiento 🅿️</option>
+          <option value="Corte de Pelo ✂️">Corte de Pelo ✂️</option>
+          <option value="Lavado Carro 🧼">Lavado Carro 🧼</option>
+          <option value="Chevy 🚗">Chevy (Mantenimiento) 🚗</option>
+          <option value="Otros 🌀">Otros 🌀</option>
+        </optgroup>
+        <optgroup label="🎬 Suscripciones">
+          <option value="CapCut/Canva 🎨">CapCut/Canva 🎨</option>
+          <option value="Grok/Google 🤖">Grok/Google 🤖</option>
+          <option value="Ipsy/Gym 🏋️">Ipsy/Gym 🏋️</option>
+        </optgroup>
+      </select>
+    </div>
     <button id="save-btn" class="btn-save" onclick="save()">GUARDAR REGISTRO</button>
   </div>
 </div>
@@ -99,7 +118,7 @@
 <div id="view-list" class="view">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
     <h2 style="margin:0">Historial</h2>
-    <button onclick="exportPDF()" style="background:var(--surf); color:var(--text); border:1px solid var(--bord); padding:8px 12px; border-radius:10px; font-size:12px">📄 Reporte PDF</button>
+    <button onclick="exportPDF()" style="background:var(--surf); color:var(--text); border:1px solid var(--bord); padding:8px 12px; border-radius:10px; font-size:12px">📄 PDF</button>
   </div>
   <input type="text" id="search" placeholder="🔍 Buscar..." oninput="render()">
   <div id="full-list"></div>
@@ -123,51 +142,63 @@
   });
 
   async function sync() {
+    document.getElementById('sync-icon').textContent = "● Sincronizando...";
     try {
       const resp = await fetch(URL + "?t=" + Date.now());
       data = await resp.json();
       render();
-    } catch(e) { console.log("Sync Error"); }
+      document.getElementById('sync-icon').textContent = "● Online";
+    } catch(e) { document.getElementById('sync-icon').textContent = "● Offline"; }
   }
 
   function render() {
     const m = parseInt(mSelect.value);
     const filter = (l) => l.filter(x => {
       if(!x.date) return false;
-      return (parseInt(x.date.split('/')[1]) - 1) === m;
+      const parts = x.date.split('/');
+      return (parseInt(parts[1]) - 1) === m;
     });
 
     const fG = filter(data.gastos), fI = filter(data.ingresos);
     const sum = (l) => l.reduce((a,b) => a + parseFloat(b.amount || 0), 0);
     const tG = sum(fG), tI = sum(fI);
     
-    document.getElementById('neto-total').textContent = `$${(tI - tG).toLocaleString()}`;
-    document.getElementById('total-gastos').textContent = `$${tG.toLocaleString()}`;
+    // Balance Real
+    const balance = tI - tG;
+    const netoEl = document.getElementById('neto-total');
+    netoEl.textContent = `$${balance.toLocaleString()}`;
+    netoEl.style.color = balance < 0 ? 'var(--danger)' : 'var(--accent)';
     
-    const perc = Math.min((tG / 50000) * 100, 100);
+    document.getElementById('total-gastos').textContent = `$${tG.toLocaleString()}`;
+    document.getElementById('total-ingresos').textContent = `$${tI.toLocaleString()}`;
+    
+    // Barra de Supervivencia basada en Ingresos
+    const perc = tI > 0 ? Math.min((tG / tI) * 100, 100) : 0;
     const bar = document.getElementById('prog-bar');
     bar.style.width = perc + '%';
-    document.getElementById('prog-perc').textContent = Math.round(perc) + '% del límite';
+    document.getElementById('prog-perc').textContent = `${Math.round(perc)}% de los ingresos agotados`;
     
+    // Lógica Semáforo (Basada en tus $40k-$50k)
     if(tG >= 45000) bar.style.background = 'var(--danger)';
     else if(tG >= 40000) bar.style.background = 'var(--warn)';
     else bar.style.background = 'var(--accent)';
 
+    // Lista
     const search = document.getElementById('search').value.toLowerCase();
-    const all = [...fG.map(x=>({...x, t:'g'})), ...fI.map(x=>({...x, t:'i'}))].sort((a,b)=>b.id - a.id);
+    const all = [...fG.map(x=>({...x, type:'GASTO'})), ...fI.map(x=>({...x, type:'INGRESO'}))].sort((a,b)=>b.id - a.id);
     
     document.getElementById('full-list').innerHTML = all.filter(x=>(x.desc||x.concept||"").toLowerCase().includes(search)).map(x=>`
       <div class="item ${x.person.toLowerCase()}" onclick="this.classList.toggle('open')">
         <div style="display:flex; justify-content:space-between; align-items:center">
           <div>
-            <b>${x.t==='i'?'↗':'↘'} ${x.concept || x.desc}</b>
-            <span style="font-size:11px; color:var(--muted)">${x.t==='i'?'INGRESO':'GASTO'} · ${x.person.toUpperCase()}</span>
+            <b>${x.type === 'INGRESO' ? '↗' : '↘'} ${x.concept || x.desc}</b>
+            <span style="font-size:10px; color:var(--muted)">${x.cat || 'Entrada'} · ${x.person.toUpperCase()} · ${x.type}</span>
           </div>
-          <span style="font-family:'DM Mono'; font-weight:bold; font-size:16px; color:${x.t==='i'?'var(--accent)':'var(--text)'}">${x.t==='i'?'+':''}$${parseFloat(x.amount).toLocaleString()}</span>
+          <span style="font-family:'DM Mono'; font-weight:bold; color:${x.type==='INGRESO'?'var(--accent)':'var(--text)'}">${x.type==='INGRESO'?'+':''}$${parseFloat(x.amount).toLocaleString()}</span>
         </div>
         <div class="item-details">
-          🗓️ Registrado: ${x.date} a las ${x.time || '--:--'} <br>
-          <button onclick="deleteRow('${x.id}', ${x.t==='i'})" style="color:var(--danger); border:1px solid var(--danger); background:none; padding:8px; border-radius:8px; margin-top:10px; width:100%; cursor:pointer;">ELIMINAR REGISTRO</button>
+          🗓️ Registro: ${x.date} a las ${x.time || '--:--'} <br>
+          <button onclick="deleteRow('${x.id}', ${x.type==='INGRESO'})" style="color:var(--danger); border:1px solid var(--danger); background:none; padding:8px; border-radius:10px; margin-top:10px; width:100%; font-weight:bold">ELIMINAR</button>
         </div>
       </div>
     `).join('');
@@ -184,7 +215,7 @@
     regType = t;
     document.getElementById('type-g').classList.toggle('active', t==='g');
     document.getElementById('type-i').classList.toggle('active', t==='i');
-    document.getElementById('reg-cat').style.display = t==='g'?'block':'none';
+    document.getElementById('cat-wrapper').style.display = t==='g'?'block':'none';
   }
 
   function setPerson(p) {
@@ -221,19 +252,12 @@
     }
   }
 
-  function toggleTheme() {
-    const b = document.body;
-    b.classList.toggle('light-mode');
-    document.getElementById('theme-icon').textContent = b.classList.contains('light-mode') ? '☀️' : '🌙';
-    render();
-  }
-
   function exportPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    const month = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][mSelect.value];
-    doc.text(`Reporte de Finanzas - ${month} 2026`, 14, 20);
-    doc.save(`Finanzas_${month}.pdf`);
+    const m = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][mSelect.value];
+    doc.text(`Finanzas José & Desi - ${m} 2026`, 14, 20);
+    doc.save(`Finanzas_${m}.pdf`);
   }
 
   sync();
