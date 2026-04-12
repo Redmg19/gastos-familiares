@@ -23,25 +23,27 @@
 
   .card { background: var(--surf); border: 1px solid var(--bord); border-radius: 20px; padding: 20px; margin-bottom: 15px; }
   input, select, button { font-family: inherit; }
-  input, select { background: var(--bg); border: 1px solid var(--bord); border-radius: 12px; padding: 12px; color: var(--text); width: 100%; margin-bottom: 10px; font-size: 16px; }
+  input, select { background: var(--bg); border: 1px solid var(--bord); border-radius: 12px; padding: 12px; color: var(--text); width: 100%; margin-bottom: 10px; font-size: 16px; outline: none; }
   
+  .btn-group { display: flex; gap: 8px; margin-bottom: 15px; }
+  .btn-opt { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid var(--bord); background: var(--surf); color: var(--text); font-weight: bold; cursor: pointer; font-size: 13px; }
+  .btn-opt.active { background: var(--text); color: var(--bg); }
+
   /* HÁBITOS */
   .h-row { margin-bottom: 15px; }
   .h-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
-  .h-bar-bg { height: 8px; background: #222; border-radius: 4px; overflow: hidden; display: flex; gap: 2px; }
-  .h-day { flex: 1; background: #333; transition: 0.3s; cursor: pointer; }
-  .h-day.active { background: var(--accent); }
-  .h-day.off { background: #111; pointer-events: none; opacity: 0.2; }
-  .h-bar-fill { height: 100%; background: var(--accent); transition: 0.5s; }
+  .h-bar-bg { height: 12px; background: #222; border-radius: 6px; overflow: hidden; display: flex; gap: 3px; padding: 2px; }
+  .h-day { flex: 1; background: #333; border-radius: 3px; transition: 0.3s; cursor: pointer; }
+  .h-day.active { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .h-day.off { background: #111; opacity: 0.1; cursor: default; }
 
-  /* AGENDA */
-  .ag-item { border-left: 4px solid var(--muted); padding: 10px 15px; background: var(--surf); margin-bottom: 8px; border-radius: 0 12px 12px 0; display: flex; justify-content: space-between; align-items: center; }
+  /* AGENDA E HISTORIAL */
+  .ag-item { border-left: 4px solid var(--muted); padding: 12px; background: var(--surf); margin-bottom: 8px; border-radius: 0 12px 12px 0; display: flex; justify-content: space-between; align-items: center; }
   .ag-item.jose { border-left-color: var(--jose); }
   .ag-item.desi { border-left-color: var(--desi); }
+  .hist-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--bord); }
   
-  .btn-save { background: var(--accent); color: #000; border: none; padding: 15px; width: 100%; border-radius: 12px; font-weight: bold; }
-  .tab-btn { flex: 1; padding: 10px; border: 1px solid var(--bord); background: var(--surf); color: var(--muted); border-radius: 10px; font-size: 12px; }
-  .tab-btn.active { background: var(--text); color: var(--bg); font-weight: bold; }
+  .btn-save { background: var(--accent); color: #000; border: none; padding: 16px; width: 100%; border-radius: 15px; font-weight: 800; font-size: 15px; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -49,56 +51,70 @@
 <div id="view-finanzas" class="view active">
   <div class="card" style="text-align:center;">
     <div id="neto-total" style="font-size:42px; font-weight:bold; margin-bottom:5px;">$0</div>
-    <div style="font-size:12px; color:var(--muted); text-transform:uppercase;">Balance ingresos reales</div>
+    <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px;">Balance Real</div>
     <div style="height:10px; background:#222; border-radius:5px; margin:15px 0; overflow:hidden;">
         <div id="surv-bar" style="height:100%; width:0%; transition:1s;"></div>
     </div>
   </div>
   
+  <div class="btn-group">
+    <button id="type-g" class="btn-opt active" onclick="setRegType('g')">GASTO ↘</button>
+    <button id="type-i" class="btn-opt" onclick="setRegType('i')">INGRESO ↗</button>
+  </div>
+
   <div class="card">
-    <div style="display:flex; gap:5px; margin-bottom:15px;">
-        <button id="f-jose" class="tab-btn active" onclick="setUser('jose')">JOSÉ</button>
-        <button id="f-desi" class="tab-btn" onclick="setUser('desi')">DESI</button>
+    <div class="btn-group">
+        <button id="f-jose" class="btn-opt active" onclick="setUser('jose')">JOSÉ</button>
+        <button id="f-desi" class="btn-opt" onclick="setUser('desi')">DESI</button>
     </div>
-    <input type="text" id="f-desc" placeholder="Descripción">
-    <input type="number" id="f-amount" placeholder="Monto $">
-    <select id="f-cat">
-        <optgroup label="📌 Pagos Fijos">
-            <option>Diezmo 🙏</option><option>Renta 🏠</option><option>Mercado 🛒</option>
-            <option>Eloy 👶</option><option>Camioneta (Ahorro) 🚘</option><option>TikTok Ads 📱</option>
-        </optgroup>
-        <optgroup label="🏠 Servicios">
-            <option>Gasolina ⛽</option><option>Luz 💡</option><option>Agua Potable 💧</option>
-            <option>Agua Llave 🚿</option><option>Gas 🔥</option><option>Internet 🌐</option>
-            <option>Teléfono José 📞</option><option>Teléfono Desi 📞</option><option>Seguro Carro 🛡️</option><option>Lavado Carro 🧼</option>
-        </optgroup>
-        <optgroup label="💸 Variables">
-            <option>Estacionamiento 🅿️</option><option>Salidas Familiares 👨‍👩‍👧</option><option>Corte de Pelo ✂️</option>
-        </optgroup>
-        <option value="INGRESO">↗️ REGISTRAR INGRESO</option>
-    </select>
-    <button class="btn-save" onclick="saveFinance()">GUARDAR EN FINANZAS</button>
+    <input type="text" id="f-desc" placeholder="¿Qué concepto es?">
+    <input type="number" id="f-amount" placeholder="Monto $" inputmode="decimal">
+    
+    <div id="cat-container">
+        <select id="f-cat">
+            <optgroup label="📌 Pagos Fijos">
+                <option>Diezmo 🙏</option><option>Renta 🏠</option><option>Mercado 🛒</option>
+                <option>Eloy 👶</option><option>Camioneta (Ahorro) 🚘</option><option>TikTok Ads 📱</option>
+            </optgroup>
+            <optgroup label="🏠 Servicios">
+                <option>Gasolina ⛽</option><option>Luz 💡</option><option>Agua Potable 💧</option>
+                <option>Agua Llave 🚿</option><option>Gas 🔥</option><option>Internet 🌐</option>
+                <option>Teléfono José 📞</option><option>Teléfono Desi 📞</option><option>Seguro Carro 🛡️</option><option>Lavado Carro 🧼</option>
+            </optgroup>
+            <optgroup label="💸 Variables">
+                <option>Estacionamiento 🅿️</option><option>Salidas Familiares 👨‍👩‍👧</option><option>Corte de Pelo ✂️</option>
+            </optgroup>
+        </select>
+    </div>
+    <button id="btn-main-save" class="btn-save" onclick="saveFinance()">GUARDAR REGISTRO</button>
   </div>
 </div>
 
 <div id="view-prod" class="view">
-  <h3>Hábitos Semanales</h3>
+  <h3 style="margin:0 0 10px 0">Mis Hábitos</h3>
   <div id="habit-list" class="card"></div>
 
-  <h3>Próximos 7 Días</h3>
+  <h3>Agenda Compartida (7d)</h3>
   <div id="agenda-list"></div>
   
   <div class="card" style="margin-top:20px;">
-    <h4 style="margin-top:0">Nuevo Evento</h4>
+    <h4 style="margin:0 0 10px 0">Nuevo Evento</h4>
+    <div class="btn-group">
+        <button id="ag-jose" class="btn-opt active" onclick="setAgUser('jose')">PARA JOSÉ</button>
+        <button id="ag-desi" class="btn-opt" onclick="setAgUser('desi')">PARA DESI</button>
+    </div>
     <input type="date" id="ag-date">
     <input type="time" id="ag-time">
-    <input type="text" id="ag-act" placeholder="¿Qué toca hacer?">
-    <button class="btn-save" style="background:var(--desi)" onclick="saveAgenda()">AGREGAR A AGENDA</button>
+    <input type="text" id="ag-act" placeholder="Actividad o Recordatorio">
+    <button class="btn-save" style="background:var(--desi)" onclick="saveAgenda()">AGREGAR A LA AGENDA</button>
   </div>
 </div>
 
 <div id="view-historial" class="view">
-  <h3>Movimientos Mensuales</h3>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+    <h3 style="margin:0">Historial</h3>
+    <button onclick="exportPDF()" style="background:var(--surf); color:var(--text); border:1px solid var(--bord); padding:8px 12px; border-radius:10px; font-size:12px; font-weight:bold">📄 Exportar PDF</button>
+  </div>
   <div id="full-history"></div>
 </div>
 
@@ -111,7 +127,7 @@
 <script>
 const URL = "https://script.google.com/macros/s/AKfycbyBhXZ8n1O6fyXh4EGNXIJN8-QixT7pWtSqD9imWc81Z6sSNLPefNyidmT5E_EMCUz4/exec";
 let db = { gastos:[], ingresos:[], agenda:[], habitos:[] };
-let curUser = 'jose';
+let curUser = 'jose', agUser = 'jose', regType = 'g';
 
 const HABIT_DEF = [
     {n: "Ajedrez Amelia", d:[1,2,3,4,5]},
@@ -130,26 +146,28 @@ async function sync() {
         const r = await fetch(URL+"?t="+Date.now());
         db = await r.json();
         render();
+        renderHistory();
     } catch(e) { console.error(e); }
 }
 
 function render() {
-    // FINANZAS
     const tG = db.gastos.reduce((a,b)=>a+parseFloat(b.monto||0),0);
     const tI = db.ingresos.reduce((a,b)=>a+parseFloat(b.monto||0),0);
     const bal = tI - tG;
-    document.getElementById('neto-total').textContent = `$${bal.toLocaleString()}`;
-    document.getElementById('neto-total').style.color = bal < 0 ? 'var(--danger)' : 'var(--accent)';
+    const netoEl = document.getElementById('neto-total');
+    netoEl.textContent = `$${bal.toLocaleString()}`;
+    netoEl.style.color = bal < 0 ? 'var(--danger)' : 'var(--accent)';
+    
     const perc = tI > 0 ? (tG/tI)*100 : 0;
     const sBar = document.getElementById('surv-bar');
     sBar.style.width = Math.min(perc, 100)+'%';
-    sBar.style.background = perc > 90 ? 'var(--danger)' : (perc > 70 ? 'var(--warn)' : 'var(--accent)');
+    sBar.style.background = perc > 95 ? 'var(--danger)' : (perc > 80 ? 'var(--warn)' : 'var(--accent)');
 
     // HÁBITOS
     const monday = getMonday(new Date()).toLocaleDateString('es-MX');
     document.getElementById('habit-list').innerHTML = HABIT_DEF.map(h => {
         const saved = db.habitos.find(x => x.habito === h.n && x.fecha_inicio === monday) || {};
-        let done = 0; h.d.forEach(d => { if(saved['lmmijvsd'[d-1]]) done++; });
+        let done = 0; h.d.forEach(d => { if(saved[['l','m','mi','j','v','s','d'][d-1]] === "OK") done++; });
         const p = Math.round((done/h.d.length)*100);
         return `
             <div class="h-row">
@@ -158,29 +176,51 @@ function render() {
                     ${[1,2,3,4,5,6,7].map(d => {
                         const isOff = !h.d.includes(d);
                         const dayKey = ['l','m','mi','j','v','s','d'][d-1];
-                        const isActive = saved[dayKey] === "OK";
-                        return `<div class="h-day ${isOff?'off':(isActive?'active':'')}" onclick="toggleHabit('${h.n}','${dayKey}',${isActive})"></div>`;
+                        const isActive = (saved[dayKey] === "OK");
+                        return `<div class="h-day ${isOff?'off':(isActive?'active':'')}" onclick="${!isOff ? `confirmHabit('${h.n}','${dayKey}',${isActive})` : ''}"></div>`;
                     }).join('')}
                 </div>
             </div>
         `;
     }).join('');
 
-    // AGENDA (Próximos 7 días)
-    const hoy = new Date();
-    const agendaHtml = db.agenda.filter(a => {
-        const d = new Date(a.fecha);
-        return d >= hoy.setHours(0,0,0,0) && d <= new Date().setDate(hoy.getDate()+7);
-    }).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha)).map(a => `
+    // AGENDA
+    const hoy = new Date(); hoy.setHours(0,0,0,0);
+    const agHtml = db.agenda.filter(a => new Date(a.fecha) >= hoy).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha)).map(a => `
         <div class="ag-item ${a.persona.toLowerCase()}">
-            <div>
-                <div style="font-size:10px; color:var(--muted)">${a.fecha} - ${a.hora}</div>
+            <div style="flex:1">
+                <div style="font-size:10px; color:var(--muted)">${new Date(a.fecha).toLocaleDateString('es-MX', {weekday:'short', day:'numeric'})} · ${a.hora}</div>
                 <div style="font-weight:bold">${a.actividad}</div>
             </div>
-            <button onclick="del('Agenda','${a.id}')" style="background:none; border:none; color:var(--danger)">✕</button>
+            <button onclick="del('Agenda','${a.id}')" style="background:none; border:none; color:var(--danger); font-size:18px">✕</button>
         </div>
     `).join('');
-    document.getElementById('agenda-list').innerHTML = agendaHtml || '<div style="color:var(--muted); text-align:center">Sin compromisos esta semana</div>';
+    document.getElementById('agenda-list').innerHTML = agHtml || '<div style="color:var(--muted); text-align:center">Sin pendientes</div>';
+}
+
+function renderHistory() {
+    let combined = [
+        ...db.gastos.map(x => ({...x, type:'g'})),
+        ...db.ingresos.map(x => ({...x, type:'i'}))
+    ].sort((a,b) => b.id - a.id);
+
+    document.getElementById('full-history').innerHTML = combined.map(x => `
+        <div class="hist-item">
+            <div>
+                <div style="font-size:10px; color:var(--muted)">${x.fecha} · ${x.persona.toUpperCase()}</div>
+                <div style="font-weight:bold">${x.descripcion || x.concepto}</div>
+                <div style="font-size:11px; color:var(--muted)">${x.categoria || 'Ingreso'}</div>
+            </div>
+            <div style="text-align:right">
+                <div style="font-weight:bold; color:${x.type==='i'?'var(--accent)':'var(--danger)'}">${x.type==='i'?'+':'-'}$${parseFloat(x.monto).toLocaleString()}</div>
+                <button onclick="del('${x.type==='i'?'Ingresos':'Gastos'}','${x.id}')" style="background:none; border:none; color:var(--muted); font-size:12px; margin-top:5px">Eliminar</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function confirmHabit(name, day, current) {
+    if(confirm(`¿Marcaste "${name}" como cumplido?`)) { toggleHabit(name, day, current); }
 }
 
 async function toggleHabit(name, day, current) {
@@ -192,22 +232,34 @@ async function toggleHabit(name, day, current) {
     sync();
 }
 
+function setRegType(t) {
+    regType = t;
+    document.getElementById('type-g').classList.toggle('active', t==='g');
+    document.getElementById('type-i').classList.toggle('active', t==='i');
+    document.getElementById('cat-container').style.display = t==='g' ? 'block' : 'none';
+}
+
+function setUser(u) { curUser = u; document.getElementById('f-jose').classList.toggle('active', u==='jose'); document.getElementById('f-desi').classList.toggle('active', u==='desi'); }
+function setAgUser(u) { agUser = u; document.getElementById('ag-jose').classList.toggle('active', u==='jose'); document.getElementById('ag-desi').classList.toggle('active', u==='desi'); }
+
 async function saveFinance() {
-    const isInc = document.getElementById('f-cat').value === "INGRESO";
+    const btn = document.getElementById('btn-main-save');
+    btn.textContent = "GUARDANDO..."; btn.disabled = true;
     const body = {
-        action: isInc ? 'add_ingreso' : 'add_gasto',
+        action: regType==='g' ? 'add_gasto' : 'add_ingreso',
         id: Date.now(), person: curUser,
         amount: document.getElementById('f-amount').value,
-        [isInc?'concept':'desc']: document.getElementById('f-desc').value,
-        cat: document.getElementById('f-cat').value
+        [regType==='g'?'desc':'concept']: document.getElementById('f-desc').value,
+        cat: regType==='g' ? document.getElementById('f-cat').value : 'Ingreso'
     };
     await fetch(URL, {method:'POST', mode:'no-cors', body:JSON.stringify(body)});
-    sync();
+    btn.textContent = "¡GUARDADO! ✅";
+    setTimeout(()=>{ btn.textContent="GUARDAR REGISTRO"; btn.disabled=false; sync(); }, 1000);
 }
 
 async function saveAgenda() {
     const body = {
-        action: 'add_agenda', id: Date.now(), person: curUser,
+        action: 'add_agenda', id: Date.now(), person: agUser,
         date: document.getElementById('ag-date').value,
         time: document.getElementById('ag-time').value,
         activity: document.getElementById('ag-act').value
@@ -216,7 +268,7 @@ async function saveAgenda() {
     sync();
 }
 
-async function del(sheet, id) { if(confirm("¿Borrar?")) { await fetch(URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'delete', sheet, id})}); sync(); } }
+async function del(sheet, id) { if(confirm("¿Eliminar registro permanentemente?")) { await fetch(URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'delete', sheet, id})}); sync(); } }
 
 function nav(v) {
     document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
@@ -225,13 +277,22 @@ function nav(v) {
     document.getElementById('n-'+v).classList.add('active');
 }
 
-function setUser(u) {
-    curUser = u;
-    document.getElementById('f-jose').classList.toggle('active', u==='jose');
-    document.getElementById('f-desi').classList.toggle('active', u==='desi');
-}
-
 function getMonday(d) { d = new Date(d); const day = d.getDay(), diff = d.getDate() - day + (day == 0 ? -6 : 1); return new Date(d.setDate(diff)); }
+
+function exportPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(18); doc.text("Reporte Mensual: José & Desi", 20, 20);
+    doc.setFontSize(12);
+    let y = 35;
+    [...db.gastos, ...db.ingresos].sort((a,b)=>b.id-a.id).forEach(x => {
+        if(y > 280) { doc.addPage(); y = 20; }
+        const txt = `${x.fecha} | ${x.persona.toUpperCase()} | ${x.descripcion || x.concepto} | $${x.monto}`;
+        doc.text(txt, 20, y);
+        y += 10;
+    });
+    doc.save("Reporte_Finanzas.pdf");
+}
 
 sync();
 </script>
