@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>José & Desi: Centro de Control</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #0a0a0a; --surf: #161616; --bord: #262626;
@@ -32,11 +32,11 @@
   /* HÁBITOS */
   .h-row { margin-bottom: 15px; }
   .h-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
-  .h-bar-bg { height: 12px; background: #222; border-radius: 6px; overflow: hidden; display: flex; gap: 3px; padding: 2px; }
-  .h-day { flex: 1; background: #333; border-radius: 3px; transition: 0.3s; cursor: pointer; }
+  .h-bar-bg { height: 14px; background: #222; border-radius: 7px; overflow: hidden; display: flex; gap: 3px; padding: 2px; }
+  .h-day { flex: 1; background: #333; border-radius: 4px; transition: 0.3s; cursor: pointer; position: relative; }
   .h-day.active { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
-  .h-day.off { background: #111; opacity: 0.1; cursor: default; }
-
+  .h-day.off { background: #111; opacity: 0.05; cursor: default; }
+  
   /* AGENDA E HISTORIAL */
   .ag-item { border-left: 4px solid var(--muted); padding: 12px; background: var(--surf); margin-bottom: 8px; border-radius: 0 12px 12px 0; display: flex; justify-content: space-between; align-items: center; }
   .ag-item.jose { border-left-color: var(--jose); }
@@ -44,6 +44,7 @@
   .hist-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--bord); }
   
   .btn-save { background: var(--accent); color: #000; border: none; padding: 16px; width: 100%; border-radius: 15px; font-weight: 800; font-size: 15px; cursor: pointer; }
+  .config-btn { background: none; border: 1px dashed var(--muted); color: var(--muted); padding: 10px; border-radius: 10px; font-size: 12px; width: 100%; margin-top: 10px; }
 </style>
 </head>
 <body>
@@ -67,7 +68,7 @@
         <button id="f-jose" class="btn-opt active" onclick="setUser('jose')">JOSÉ</button>
         <button id="f-desi" class="btn-opt" onclick="setUser('desi')">DESI</button>
     </div>
-    <input type="text" id="f-desc" placeholder="¿Qué concepto es?">
+    <input type="text" id="f-desc" placeholder="Concepto">
     <input type="number" id="f-amount" placeholder="Monto $" inputmode="decimal">
     
     <div id="cat-container">
@@ -91,29 +92,46 @@
 </div>
 
 <div id="view-prod" class="view">
-  <h3 style="margin:0 0 10px 0">Mis Hábitos</h3>
+  <h3 style="margin:0 0 10px 0">Hábitos Compartidos</h3>
   <div id="habit-list" class="card"></div>
+  <button class="config-btn" onclick="toggleConfig()">⚙️ Gestionar mis hábitos</button>
 
-  <h3>Agenda Compartida (7d)</h3>
+  <div id="habit-config" style="display:none; margin-top:15px;" class="card">
+    <h4 style="margin:0 0 10px 0">Nuevo Hábito</h4>
+    <input type="text" id="new-h-name" placeholder="Ej: Gimnasio José">
+    <div style="font-size:12px; color:var(--muted); margin-bottom:5px;">Días activos:</div>
+    <div class="btn-group" id="days-selector">
+        <button class="btn-opt" onclick="this.classList.toggle('active')" data-d="1">L</button>
+        <button class="btn-opt" onclick="this.classList.toggle('active')" data-d="2">M</button>
+        <button class="btn-opt" onclick="this.classList.toggle('active')" data-d="3">Mi</button>
+        <button class="btn-opt" onclick="this.classList.toggle('active')" data-d="4">J</button>
+        <button class="btn-opt" onclick="this.classList.toggle('active')" data-d="5">V</button>
+        <button class="btn-opt" onclick="this.classList.toggle('active')" data-d="6">S</button>
+        <button class="btn-opt" onclick="this.classList.toggle('active')" data-d="0">D</button>
+    </div>
+    <button class="btn-save" onclick="addNewHabit()">AÑADIR HÁBITO</button>
+  </div>
+
+  <h3 style="margin-top:25px">Agenda 7 Días</h3>
   <div id="agenda-list"></div>
   
   <div class="card" style="margin-top:20px;">
     <h4 style="margin:0 0 10px 0">Nuevo Evento</h4>
     <div class="btn-group">
-        <button id="ag-jose" class="btn-opt active" onclick="setAgUser('jose')">PARA JOSÉ</button>
-        <button id="ag-desi" class="btn-opt" onclick="setAgUser('desi')">PARA DESI</button>
+        <button id="ag-jose" class="btn-opt active" onclick="setAgUser('jose')">JOSÉ</button>
+        <button id="ag-desi" class="btn-opt" onclick="setAgUser('desi')">DESI</button>
     </div>
     <input type="date" id="ag-date">
     <input type="time" id="ag-time">
-    <input type="text" id="ag-act" placeholder="Actividad o Recordatorio">
-    <button class="btn-save" style="background:var(--desi)" onclick="saveAgenda()">AGREGAR A LA AGENDA</button>
+    <input type="text" id="ag-act" placeholder="¿Qué hay que hacer?">
+    <button class="btn-save" style="background:var(--desi)" onclick="saveAgenda()">AGENDAR</button>
   </div>
 </div>
 
 <div id="view-historial" class="view">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
     <h3 style="margin:0">Historial</h3>
-    <button onclick="exportPDF()" style="background:var(--surf); color:var(--text); border:1px solid var(--bord); padding:8px 12px; border-radius:10px; font-size:12px; font-weight:bold">📄 Exportar PDF</button>
+    <button onclick="exportPDF()" style="background:var(--surf); color:var(--text); border:1px solid var(--bord); padding:8px 12px; border-radius:10px; font-size:12px; font-weight:bold">📄 PDF</button>
   </div>
   <div id="full-history"></div>
 </div>
@@ -129,11 +147,13 @@ const URL = "https://script.google.com/macros/s/AKfycbyBhXZ8n1O6fyXh4EGNXIJN8-Qi
 let db = { gastos:[], ingresos:[], agenda:[], habitos:[] };
 let curUser = 'jose', agUser = 'jose', regType = 'g';
 
-const HABIT_DEF = [
+// Lista inicial corregida según tu petición
+let HABIT_DEF = JSON.parse(localStorage.getItem('habit_def')) || [
     {n: "Ajedrez Amelia", d:[1,2,3,4,5]},
-    {n: "Gimnasio", d:[1,2,3,4,5]},
+    {n: "Gimnasio José", d:[1,2,3,4,5]},
+    {n: "Gimnasio Desi", d:[1,2,3,4,5]},
     {n: "Lavar Chevy", d:[2]},
-    {n: "Devocional", d:[1,2,3,4,5,6]},
+    {n: "Devocional Familiar", d:[1,2,3,4,5,6]},
     {n: "Lectura 20m", d:[1,2,3,4,5]},
     {n: "Niños Parque", d:[3,6]},
     {n: "JPC Viernes", d:[5]},
@@ -167,15 +187,18 @@ function render() {
     const monday = getMonday(new Date()).toLocaleDateString('es-MX');
     document.getElementById('habit-list').innerHTML = HABIT_DEF.map(h => {
         const saved = db.habitos.find(x => x.habito === h.n && x.fecha_inicio === monday) || {};
-        let done = 0; h.d.forEach(d => { if(saved[['l','m','mi','j','v','s','d'][d-1]] === "OK") done++; });
+        let done = 0; h.d.forEach(d => { 
+            const dayKey = ['d','l','m','mi','j','v','s'][d];
+            if(saved[dayKey] === "OK") done++; 
+        });
         const p = Math.round((done/h.d.length)*100);
         return `
-            <div class="h-row">
+            <div class="h-row" oncontextmenu="removeHabit('${h.n}'); return false;">
                 <div class="h-label"><span>${h.n}</span> <b style="color:${p>=80?'var(--accent)':'var(--muted)'}">${p}%</b></div>
                 <div class="h-bar-bg">
-                    ${[1,2,3,4,5,6,7].map(d => {
+                    ${[1,2,3,4,5,6,0].map(d => {
                         const isOff = !h.d.includes(d);
-                        const dayKey = ['l','m','mi','j','v','s','d'][d-1];
+                        const dayKey = ['d','l','m','mi','j','v','s'][d];
                         const isActive = (saved[dayKey] === "OK");
                         return `<div class="h-day ${isOff?'off':(isActive?'active':'')}" onclick="${!isOff ? `confirmHabit('${h.n}','${dayKey}',${isActive})` : ''}"></div>`;
                     }).join('')}
@@ -195,25 +218,45 @@ function render() {
             <button onclick="del('Agenda','${a.id}')" style="background:none; border:none; color:var(--danger); font-size:18px">✕</button>
         </div>
     `).join('');
-    document.getElementById('agenda-list').innerHTML = agHtml || '<div style="color:var(--muted); text-align:center">Sin pendientes</div>';
+    document.getElementById('agenda-list').innerHTML = agHtml || '<div style="color:var(--muted); text-align:center">Agenda vacía</div>';
+}
+
+function toggleConfig() { 
+    const el = document.getElementById('habit-config');
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function addNewHabit() {
+    const name = document.getElementById('new-h-name').value;
+    const selectedDays = Array.from(document.querySelectorAll('#days-selector .active')).map(b => parseInt(b.dataset.d));
+    if(!name || selectedDays.length === 0) return alert("Pon un nombre y elige días");
+    HABIT_DEF.push({n: name, d: selectedDays});
+    localStorage.setItem('habit_def', JSON.stringify(HABIT_DEF));
+    document.getElementById('new-h-name').value = '';
+    document.querySelectorAll('#days-selector .active').forEach(b => b.classList.remove('active'));
+    toggleConfig();
+    render();
+}
+
+function removeHabit(name) {
+    if(confirm(`¿Eliminar el hábito "${name}"?`)) {
+        HABIT_DEF = HABIT_DEF.filter(h => h.n !== name);
+        localStorage.setItem('habit_def', JSON.stringify(HABIT_DEF));
+        render();
+    }
 }
 
 function renderHistory() {
-    let combined = [
-        ...db.gastos.map(x => ({...x, type:'g'})),
-        ...db.ingresos.map(x => ({...x, type:'i'}))
-    ].sort((a,b) => b.id - a.id);
-
+    let combined = [...db.gastos.map(x => ({...x, type:'g'})), ...db.ingresos.map(x => ({...x, type:'i'}))].sort((a,b) => b.id - a.id);
     document.getElementById('full-history').innerHTML = combined.map(x => `
         <div class="hist-item">
             <div>
                 <div style="font-size:10px; color:var(--muted)">${x.fecha} · ${x.persona.toUpperCase()}</div>
                 <div style="font-weight:bold">${x.descripcion || x.concepto}</div>
-                <div style="font-size:11px; color:var(--muted)">${x.categoria || 'Ingreso'}</div>
             </div>
             <div style="text-align:right">
                 <div style="font-weight:bold; color:${x.type==='i'?'var(--accent)':'var(--danger)'}">${x.type==='i'?'+':'-'}$${parseFloat(x.monto).toLocaleString()}</div>
-                <button onclick="del('${x.type==='i'?'Ingresos':'Gastos'}','${x.id}')" style="background:none; border:none; color:var(--muted); font-size:12px; margin-top:5px">Eliminar</button>
+                <button onclick="del('${x.type==='i'?'Ingresos':'Gastos'}','${x.id}')" style="background:none; border:none; color:var(--muted); font-size:11px; margin-top:5px">Eliminar</button>
             </div>
         </div>
     `).join('');
@@ -225,7 +268,7 @@ function confirmHabit(name, day, current) {
 
 async function toggleHabit(name, day, current) {
     const monday = getMonday(new Date()).toLocaleDateString('es-MX');
-    const colMap = {l:4, m:5, mi:6, j:7, v:8, s:9, d:10};
+    const colMap = {d:10, l:4, m:5, mi:6, j:7, v:8, s:9};
     await fetch(URL, {method:'POST', mode:'no-cors', body:JSON.stringify({
         action:'update_habito', habito:name, fecha_inicio:monday, colIdx:colMap[day], val:current?"":"OK"
     })});
@@ -244,7 +287,6 @@ function setAgUser(u) { agUser = u; document.getElementById('ag-jose').classList
 
 async function saveFinance() {
     const btn = document.getElementById('btn-main-save');
-    btn.textContent = "GUARDANDO..."; btn.disabled = true;
     const body = {
         action: regType==='g' ? 'add_gasto' : 'add_ingreso',
         id: Date.now(), person: curUser,
@@ -253,8 +295,8 @@ async function saveFinance() {
         cat: regType==='g' ? document.getElementById('f-cat').value : 'Ingreso'
     };
     await fetch(URL, {method:'POST', mode:'no-cors', body:JSON.stringify(body)});
-    btn.textContent = "¡GUARDADO! ✅";
-    setTimeout(()=>{ btn.textContent="GUARDAR REGISTRO"; btn.disabled=false; sync(); }, 1000);
+    btn.textContent = "✅ GUARDADO";
+    setTimeout(()=>{ btn.textContent="GUARDAR REGISTRO"; sync(); }, 1000);
 }
 
 async function saveAgenda() {
@@ -268,7 +310,7 @@ async function saveAgenda() {
     sync();
 }
 
-async function del(sheet, id) { if(confirm("¿Eliminar registro permanentemente?")) { await fetch(URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'delete', sheet, id})}); sync(); } }
+async function del(sheet, id) { if(confirm("¿Borrar permanentemente?")) { await fetch(URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'delete', sheet, id})}); sync(); } }
 
 function nav(v) {
     document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
@@ -282,16 +324,13 @@ function getMonday(d) { d = new Date(d); const day = d.getDay(), diff = d.getDat
 function exportPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    doc.setFontSize(18); doc.text("Reporte Mensual: José & Desi", 20, 20);
-    doc.setFontSize(12);
-    let y = 35;
+    doc.text("Reporte Finanzas José & Desi", 20, 20);
+    let y = 30;
     [...db.gastos, ...db.ingresos].sort((a,b)=>b.id-a.id).forEach(x => {
-        if(y > 280) { doc.addPage(); y = 20; }
-        const txt = `${x.fecha} | ${x.persona.toUpperCase()} | ${x.descripcion || x.concepto} | $${x.monto}`;
-        doc.text(txt, 20, y);
+        doc.text(`${x.fecha}: ${x.descripcion||x.concepto} - $${x.monto}`, 20, y);
         y += 10;
     });
-    doc.save("Reporte_Finanzas.pdf");
+    doc.save("Reporte.pdf");
 }
 
 sync();
