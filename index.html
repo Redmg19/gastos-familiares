@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Finanzas José & Desi</title>
+<title>José & Desi: Centro de Control</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -13,255 +12,228 @@
     --jose: #e8c97d; --desi: #7db8e8; --text: #f0ede8; --muted: #777;
     --accent: #2ecc71; --danger: #e87d7d; --warn: #f39c12;
   }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; margin: 0; padding-bottom: 90px; overflow-x: hidden; }
-  
-  nav { position: fixed; bottom: 0; width: 100%; background: var(--surf); border-top: 1px solid var(--bord); display: grid; grid-template-columns: 1fr 1fr; height: 75px; z-index: 100; }
-  .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); font-size: 12px; cursor: pointer; }
-  .nav-item.active { color: var(--desi); font-weight: bold; }
-  
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; margin: 0; padding-bottom: 90px; }
   .view { display: none; padding: 20px; animation: fadeIn 0.2s; }
   .view.active { display: block; }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  
+  nav { position: fixed; bottom: 0; width: 100%; background: var(--surf); border-top: 1px solid var(--bord); display: grid; grid-template-columns: 1fr 1fr 1fr; height: 75px; z-index: 100; }
+  .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); font-size: 10px; cursor: pointer; }
+  .nav-item.active { color: var(--desi); font-weight: bold; }
 
   .card { background: var(--surf); border: 1px solid var(--bord); border-radius: 20px; padding: 20px; margin-bottom: 15px; }
-  input, select { background: var(--bg); border: 1px solid var(--bord); border-radius: 12px; padding: 14px; color: var(--text); width: 100%; margin-bottom: 12px; font-size: 16px; outline: none; }
+  input, select, button { font-family: inherit; }
+  input, select { background: var(--bg); border: 1px solid var(--bord); border-radius: 12px; padding: 12px; color: var(--text); width: 100%; margin-bottom: 10px; font-size: 16px; }
   
-  .btn-group { display: flex; gap: 8px; margin-bottom: 15px; }
-  .btn-opt { flex: 1; padding: 14px; border-radius: 12px; border: 1px solid var(--bord); background: var(--surf); color: var(--text); font-weight: bold; cursor: pointer; font-size: 13px; }
-  .btn-opt.active { background: var(--text); color: var(--bg); }
+  /* HÁBITOS */
+  .h-row { margin-bottom: 15px; }
+  .h-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+  .h-bar-bg { height: 8px; background: #222; border-radius: 4px; overflow: hidden; display: flex; gap: 2px; }
+  .h-day { flex: 1; background: #333; transition: 0.3s; cursor: pointer; }
+  .h-day.active { background: var(--accent); }
+  .h-day.off { background: #111; pointer-events: none; opacity: 0.2; }
+  .h-bar-fill { height: 100%; background: var(--accent); transition: 0.5s; }
+
+  /* AGENDA */
+  .ag-item { border-left: 4px solid var(--muted); padding: 10px 15px; background: var(--surf); margin-bottom: 8px; border-radius: 0 12px 12px 0; display: flex; justify-content: space-between; align-items: center; }
+  .ag-item.jose { border-left-color: var(--jose); }
+  .ag-item.desi { border-left-color: var(--desi); }
   
-  .btn-save { background: var(--accent); color: #000; border: none; padding: 18px; width: 100%; border-radius: 15px; font-weight: 800; font-size: 16px; }
-
-  /* Barra Semáforo */
-  .prog-bg { height: 12px; background: #222; border-radius: 6px; overflow: hidden; margin: 15px 0 5px; }
-  .prog-fill { height: 100%; width: 0%; transition: 1.5s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
-
-  /* Historial */
-  .item { background: var(--surf); padding: 15px; border-radius: 16px; margin-bottom: 8px; border-left: 5px solid var(--muted); cursor: pointer; }
-  .item.jose { border-left-color: var(--jose); }
-  .item.desi { border-left-color: var(--desi); }
-  .item-details { display: none; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--bord); font-size: 12px; color: var(--muted); line-height: 1.6; }
-  .item.open .item-details { display: block; }
+  .btn-save { background: var(--accent); color: #000; border: none; padding: 15px; width: 100%; border-radius: 12px; font-weight: bold; }
+  .tab-btn { flex: 1; padding: 10px; border: 1px solid var(--bord); background: var(--surf); color: var(--muted); border-radius: 10px; font-size: 12px; }
+  .tab-btn.active { background: var(--text); color: var(--bg); font-weight: bold; }
 </style>
 </head>
 <body>
 
-<div id="view-main" class="view active">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-    <select id="month-filter" onchange="sync()" style="width: auto; margin:0; padding:8px 12px; font-size:14px; background:var(--surf); color:var(--text); border:1px solid var(--bord); border-radius:10px;"></select>
-    <div id="sync-icon" style="font-size: 12px; color: var(--muted)">● Online</div>
-  </div>
-
+<div id="view-finanzas" class="view active">
   <div class="card" style="text-align:center;">
-    <span style="font-size:11px; color:var(--muted); letter-spacing:1px; text-transform:uppercase">Balance Disponible</span>
-    <h1 id="neto-total" style="margin:8px 0; font-size:42px; letter-spacing:-1px;">$0</h1>
-    <div style="display:flex; justify-content:space-between; font-size:12px; margin-top:10px;">
-        <span style="color:var(--danger)">Gastos: <b id="total-gastos">$0</b></span>
-        <span style="color:var(--accent)">Ingresos: <b id="total-ingresos">$0</b></span>
+    <div id="neto-total" style="font-size:42px; font-weight:bold; margin-bottom:5px;">$0</div>
+    <div style="font-size:12px; color:var(--muted); text-transform:uppercase;">Balance ingresos reales</div>
+    <div style="height:10px; background:#222; border-radius:5px; margin:15px 0; overflow:hidden;">
+        <div id="surv-bar" style="height:100%; width:0%; transition:1s;"></div>
     </div>
-    <div class="prog-bg"><div id="prog-bar" class="prog-fill"></div></div>
-    <div id="prog-perc" style="font-size:10px; color:var(--muted); text-align:right">Cargando...</div>
   </div>
-
-  <div class="btn-group">
-    <button id="type-g" class="btn-opt active" onclick="switchReg('g')">GASTO ↘</button>
-    <button id="type-i" class="btn-opt" onclick="switchReg('i')">INGRESO ↗</button>
-  </div>
-
+  
   <div class="card">
-    <div class="btn-group">
-      <button id="p-jose" class="btn-opt active" onclick="setPerson('jose')">JOSÉ</button>
-      <button id="p-desi" class="btn-opt" onclick="setPerson('desi')">DESI</button>
+    <div style="display:flex; gap:5px; margin-bottom:15px;">
+        <button id="f-jose" class="tab-btn active" onclick="setUser('jose')">JOSÉ</button>
+        <button id="f-desi" class="tab-btn" onclick="setUser('desi')">DESI</button>
     </div>
-    <input type="text" id="reg-desc" placeholder="¿En qué se gastó?">
-    <input type="number" id="reg-amount" placeholder="0.00" inputmode="decimal">
-    
-    <div id="cat-wrapper">
-      <select id="reg-cat">
-        <optgroup label="📌 Fijos / Compromisos">
-          <option value="Diezmo 🙏">Diezmo 🙏</option>
-          <option value="Renta 🏠">Renta 🏠</option>
-          <option value="Mercado 🛒">Mercado 🛒</option>
-          <option value="Eloy 👶">Eloy 👶</option>
-          <option value="Camioneta 🚘">Camioneta (Ahorro) 🚘</option>
-          <option value="TikTok Ads 📱">TikTok Ads 📱</option>
+    <input type="text" id="f-desc" placeholder="Descripción">
+    <input type="number" id="f-amount" placeholder="Monto $">
+    <select id="f-cat">
+        <optgroup label="📌 Pagos Fijos">
+            <option>Diezmo 🙏</option><option>Renta 🏠</option><option>Mercado 🛒</option>
+            <option>Eloy 👶</option><option>Camioneta (Ahorro) 🚘</option><option>TikTok Ads 📱</option>
         </optgroup>
-        <optgroup label="🏠 Servicios Casa">
-          <option value="Gasolina ⛽">Gasolina ⛽</option>
-          <option value="Luz 💡">Luz 💡</option>
-          <option value="Agua Potable 💧">Agua Potable 💧</option>
-          <option value="Agua Llave 🚿">Agua Llave 🚿</option>
-          <option value="Gas 🔥">Gas 🔥</option>
-          <option value="Teléfono/Internet 🌐">Teléfono/Internet 🌐</option>
-          <option value="Seguro Carro 🛡️">Seguro Carro 🛡️</option>
+        <optgroup label="🏠 Servicios">
+            <option>Gasolina ⛽</option><option>Luz 💡</option><option>Agua Potable 💧</option>
+            <option>Agua Llave 🚿</option><option>Gas 🔥</option><option>Internet 🌐</option>
+            <option>Teléfono José 📞</option><option>Teléfono Desi 📞</option><option>Seguro Carro 🛡️</option><option>Lavado Carro 🧼</option>
         </optgroup>
         <optgroup label="💸 Variables">
-          <option value="Salidas Fam. 👨‍👩‍👧">Salidas Fam. 👨‍👩‍👧</option>
-          <option value="Estacionamiento 🅿️">Estacionamiento 🅿️</option>
-          <option value="Corte de Pelo ✂️">Corte de Pelo ✂️</option>
-          <option value="Lavado Carro 🧼">Lavado Carro 🧼</option>
-          <option value="Chevy 🚗">Chevy (Mantenimiento) 🚗</option>
-          <option value="Otros 🌀">Otros 🌀</option>
+            <option>Estacionamiento 🅿️</option><option>Salidas Familiares 👨‍👩‍👧</option><option>Corte de Pelo ✂️</option>
         </optgroup>
-        <optgroup label="🎬 Suscripciones">
-          <option value="CapCut/Canva 🎨">CapCut/Canva 🎨</option>
-          <option value="Grok/Google 🤖">Grok/Google 🤖</option>
-          <option value="Ipsy/Gym 🏋️">Ipsy/Gym 🏋️</option>
-        </optgroup>
-      </select>
-    </div>
-    <button id="save-btn" class="btn-save" onclick="save()">GUARDAR REGISTRO</button>
+        <option value="INGRESO">↗️ REGISTRAR INGRESO</option>
+    </select>
+    <button class="btn-save" onclick="saveFinance()">GUARDAR EN FINANZAS</button>
   </div>
 </div>
 
-<div id="view-list" class="view">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-    <h2 style="margin:0">Historial</h2>
-    <button onclick="exportPDF()" style="background:var(--surf); color:var(--text); border:1px solid var(--bord); padding:8px 12px; border-radius:10px; font-size:12px">📄 PDF</button>
+<div id="view-prod" class="view">
+  <h3>Hábitos Semanales</h3>
+  <div id="habit-list" class="card"></div>
+
+  <h3>Próximos 7 Días</h3>
+  <div id="agenda-list"></div>
+  
+  <div class="card" style="margin-top:20px;">
+    <h4 style="margin-top:0">Nuevo Evento</h4>
+    <input type="date" id="ag-date">
+    <input type="time" id="ag-time">
+    <input type="text" id="ag-act" placeholder="¿Qué toca hacer?">
+    <button class="btn-save" style="background:var(--desi)" onclick="saveAgenda()">AGREGAR A AGENDA</button>
   </div>
-  <input type="text" id="search" placeholder="🔍 Buscar..." oninput="render()">
-  <div id="full-list"></div>
+</div>
+
+<div id="view-historial" class="view">
+  <h3>Movimientos Mensuales</h3>
+  <div id="full-history"></div>
 </div>
 
 <nav>
-  <div class="nav-item active" id="nav-main" onclick="switchView('main')">➕<br>Registrar</div>
-  <div class="nav-item" id="nav-list" onclick="switchView('list')">📜<br>Lista</div>
+  <div class="nav-item active" id="n-finanzas" onclick="nav('finanzas')">💵<br>Finanzas</div>
+  <div class="nav-item" id="n-prod" onclick="nav('prod')">⚡<br>Productividad</div>
+  <div class="nav-item" id="n-historial" onclick="nav('historial')">📜<br>Historial</div>
 </nav>
 
 <script>
-  const URL = "https://script.google.com/macros/s/AKfycbyBhXZ8n1O6fyXh4EGNXIJN8-QixT7pWtSqD9imWc81Z6sSNLPefNyidmT5E_EMCUz4/exec";
-  let data = { gastos: [], ingresos: [] };
-  let user = 'jose', regType = 'g';
+const URL = "https://script.google.com/macros/s/AKfycbyBhXZ8n1O6fyXh4EGNXIJN8-QixT7pWtSqD9imWc81Z6sSNLPefNyidmT5E_EMCUz4/exec";
+let db = { gastos:[], ingresos:[], agenda:[], habitos:[] };
+let curUser = 'jose';
 
-  const mSelect = document.getElementById('month-filter');
-  ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'].forEach((m,i)=>{
-    let opt = document.createElement('option'); opt.value = i; opt.textContent = m;
-    if(i === new Date().getMonth()) opt.selected = true;
-    mSelect.appendChild(opt);
-  });
+const HABIT_DEF = [
+    {n: "Ajedrez Amelia", d:[1,2,3,4,5]},
+    {n: "Gimnasio", d:[1,2,3,4,5]},
+    {n: "Lavar Chevy", d:[2]},
+    {n: "Devocional", d:[1,2,3,4,5,6]},
+    {n: "Lectura 20m", d:[1,2,3,4,5]},
+    {n: "Niños Parque", d:[3,6]},
+    {n: "JPC Viernes", d:[5]},
+    {n: "Edición Mateo", d:[1,3]},
+    {n: "Edición VIDA", d:[2,4]}
+];
 
-  async function sync() {
-    document.getElementById('sync-icon').textContent = "● Sincronizando...";
+async function sync() {
     try {
-      const resp = await fetch(URL + "?t=" + Date.now());
-      data = await resp.json();
-      render();
-      document.getElementById('sync-icon').textContent = "● Online";
-    } catch(e) { document.getElementById('sync-icon').textContent = "● Offline"; }
-  }
+        const r = await fetch(URL+"?t="+Date.now());
+        db = await r.json();
+        render();
+    } catch(e) { console.error(e); }
+}
 
-  function render() {
-    const m = parseInt(mSelect.value);
-    const filter = (l) => l.filter(x => {
-      if(!x.date) return false;
-      const parts = x.date.split('/');
-      return (parseInt(parts[1]) - 1) === m;
-    });
+function render() {
+    // FINANZAS
+    const tG = db.gastos.reduce((a,b)=>a+parseFloat(b.monto||0),0);
+    const tI = db.ingresos.reduce((a,b)=>a+parseFloat(b.monto||0),0);
+    const bal = tI - tG;
+    document.getElementById('neto-total').textContent = `$${bal.toLocaleString()}`;
+    document.getElementById('neto-total').style.color = bal < 0 ? 'var(--danger)' : 'var(--accent)';
+    const perc = tI > 0 ? (tG/tI)*100 : 0;
+    const sBar = document.getElementById('surv-bar');
+    sBar.style.width = Math.min(perc, 100)+'%';
+    sBar.style.background = perc > 90 ? 'var(--danger)' : (perc > 70 ? 'var(--warn)' : 'var(--accent)');
 
-    const fG = filter(data.gastos), fI = filter(data.ingresos);
-    const sum = (l) => l.reduce((a,b) => a + parseFloat(b.amount || 0), 0);
-    const tG = sum(fG), tI = sum(fI);
-    
-    // Balance Real
-    const balance = tI - tG;
-    const netoEl = document.getElementById('neto-total');
-    netoEl.textContent = `$${balance.toLocaleString()}`;
-    netoEl.style.color = balance < 0 ? 'var(--danger)' : 'var(--accent)';
-    
-    document.getElementById('total-gastos').textContent = `$${tG.toLocaleString()}`;
-    document.getElementById('total-ingresos').textContent = `$${tI.toLocaleString()}`;
-    
-    // Barra de Supervivencia basada en Ingresos
-    const perc = tI > 0 ? Math.min((tG / tI) * 100, 100) : 0;
-    const bar = document.getElementById('prog-bar');
-    bar.style.width = perc + '%';
-    document.getElementById('prog-perc').textContent = `${Math.round(perc)}% de los ingresos agotados`;
-    
-    // Lógica Semáforo (Basada en tus $40k-$50k)
-    if(tG >= 45000) bar.style.background = 'var(--danger)';
-    else if(tG >= 40000) bar.style.background = 'var(--warn)';
-    else bar.style.background = 'var(--accent)';
+    // HÁBITOS
+    const monday = getMonday(new Date()).toLocaleDateString('es-MX');
+    document.getElementById('habit-list').innerHTML = HABIT_DEF.map(h => {
+        const saved = db.habitos.find(x => x.habito === h.n && x.fecha_inicio === monday) || {};
+        let done = 0; h.d.forEach(d => { if(saved['lmmijvsd'[d-1]]) done++; });
+        const p = Math.round((done/h.d.length)*100);
+        return `
+            <div class="h-row">
+                <div class="h-label"><span>${h.n}</span> <b style="color:${p>=80?'var(--accent)':'var(--muted)'}">${p}%</b></div>
+                <div class="h-bar-bg">
+                    ${[1,2,3,4,5,6,7].map(d => {
+                        const isOff = !h.d.includes(d);
+                        const dayKey = ['l','m','mi','j','v','s','d'][d-1];
+                        const isActive = saved[dayKey] === "OK";
+                        return `<div class="h-day ${isOff?'off':(isActive?'active':'')}" onclick="toggleHabit('${h.n}','${dayKey}',${isActive})"></div>`;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+    }).join('');
 
-    // Lista
-    const search = document.getElementById('search').value.toLowerCase();
-    const all = [...fG.map(x=>({...x, type:'GASTO'})), ...fI.map(x=>({...x, type:'INGRESO'}))].sort((a,b)=>b.id - a.id);
-    
-    document.getElementById('full-list').innerHTML = all.filter(x=>(x.desc||x.concept||"").toLowerCase().includes(search)).map(x=>`
-      <div class="item ${x.person.toLowerCase()}" onclick="this.classList.toggle('open')">
-        <div style="display:flex; justify-content:space-between; align-items:center">
-          <div>
-            <b>${x.type === 'INGRESO' ? '↗' : '↘'} ${x.concept || x.desc}</b>
-            <span style="font-size:10px; color:var(--muted)">${x.cat || 'Entrada'} · ${x.person.toUpperCase()} · ${x.type}</span>
-          </div>
-          <span style="font-family:'DM Mono'; font-weight:bold; color:${x.type==='INGRESO'?'var(--accent)':'var(--text)'}">${x.type==='INGRESO'?'+':''}$${parseFloat(x.amount).toLocaleString()}</span>
+    // AGENDA (Próximos 7 días)
+    const hoy = new Date();
+    const agendaHtml = db.agenda.filter(a => {
+        const d = new Date(a.fecha);
+        return d >= hoy.setHours(0,0,0,0) && d <= new Date().setDate(hoy.getDate()+7);
+    }).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha)).map(a => `
+        <div class="ag-item ${a.persona.toLowerCase()}">
+            <div>
+                <div style="font-size:10px; color:var(--muted)">${a.fecha} - ${a.hora}</div>
+                <div style="font-weight:bold">${a.actividad}</div>
+            </div>
+            <button onclick="del('Agenda','${a.id}')" style="background:none; border:none; color:var(--danger)">✕</button>
         </div>
-        <div class="item-details">
-          🗓️ Registro: ${x.date} a las ${x.time || '--:--'} <br>
-          <button onclick="deleteRow('${x.id}', ${x.type==='INGRESO'})" style="color:var(--danger); border:1px solid var(--danger); background:none; padding:8px; border-radius:10px; margin-top:10px; width:100%; font-weight:bold">ELIMINAR</button>
-        </div>
-      </div>
     `).join('');
-  }
+    document.getElementById('agenda-list').innerHTML = agendaHtml || '<div style="color:var(--muted); text-align:center">Sin compromisos esta semana</div>';
+}
 
-  function switchView(v) {
-    document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
-    document.getElementById('view-'+v).classList.add('active');
-    document.getElementById('nav-'+v).classList.add('active');
-  }
+async function toggleHabit(name, day, current) {
+    const monday = getMonday(new Date()).toLocaleDateString('es-MX');
+    const colMap = {l:4, m:5, mi:6, j:7, v:8, s:9, d:10};
+    await fetch(URL, {method:'POST', mode:'no-cors', body:JSON.stringify({
+        action:'update_habito', habito:name, fecha_inicio:monday, colIdx:colMap[day], val:current?"":"OK"
+    })});
+    sync();
+}
 
-  function switchReg(t) {
-    regType = t;
-    document.getElementById('type-g').classList.toggle('active', t==='g');
-    document.getElementById('type-i').classList.toggle('active', t==='i');
-    document.getElementById('cat-wrapper').style.display = t==='g'?'block':'none';
-  }
-
-  function setPerson(p) {
-    user = p;
-    document.getElementById('p-jose').classList.toggle('active', p==='jose');
-    document.getElementById('p-desi').classList.toggle('active', p==='desi');
-  }
-
-  async function save() {
-    const desc = document.getElementById('reg-desc').value;
-    const amount = document.getElementById('reg-amount').value;
-    if(!desc || !amount) return;
-    const btn = document.getElementById('save-btn');
-    btn.disabled = true; btn.textContent = "ENVIANDO...";
-    
+async function saveFinance() {
+    const isInc = document.getElementById('f-cat').value === "INGRESO";
     const body = {
-      action: regType==='g'?'add':'add_ingreso',
-      id: Date.now(),
-      person: user,
-      [regType==='g'?'desc':'concept']: desc,
-      amount: amount,
-      cat: regType==='g'?document.getElementById('reg-cat').value:'Ingreso'
+        action: isInc ? 'add_ingreso' : 'add_gasto',
+        id: Date.now(), person: curUser,
+        amount: document.getElementById('f-amount').value,
+        [isInc?'concept':'desc']: document.getElementById('f-desc').value,
+        cat: document.getElementById('f-cat').value
     };
-    await fetch(URL, { method:'POST', mode:'no-cors', body: JSON.stringify(body) });
-    document.getElementById('reg-desc').value = ''; document.getElementById('reg-amount').value = '';
-    btn.disabled = false; btn.textContent = "GUARDADO ✅";
-    setTimeout(()=>{ btn.textContent="GUARDAR REGISTRO"; sync(); }, 1200);
-  }
+    await fetch(URL, {method:'POST', mode:'no-cors', body:JSON.stringify(body)});
+    sync();
+}
 
-  async function deleteRow(id, isIng) {
-    if(confirm("¿Borrar definitivamente?")) {
-      await fetch(URL, { method:'POST', mode:'no-cors', body: JSON.stringify({action:'delete', id, isIngreso: isIng}) });
-      setTimeout(sync, 1000);
-    }
-  }
+async function saveAgenda() {
+    const body = {
+        action: 'add_agenda', id: Date.now(), person: curUser,
+        date: document.getElementById('ag-date').value,
+        time: document.getElementById('ag-time').value,
+        activity: document.getElementById('ag-act').value
+    };
+    await fetch(URL, {method:'POST', mode:'no-cors', body:JSON.stringify(body)});
+    sync();
+}
 
-  function exportPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    const m = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][mSelect.value];
-    doc.text(`Finanzas José & Desi - ${m} 2026`, 14, 20);
-    doc.save(`Finanzas_${m}.pdf`);
-  }
+async function del(sheet, id) { if(confirm("¿Borrar?")) { await fetch(URL, {method:'POST', mode:'no-cors', body:JSON.stringify({action:'delete', sheet, id})}); sync(); } }
 
-  sync();
-  setInterval(sync, 30000);
+function nav(v) {
+    document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+    document.getElementById('view-'+v).classList.add('active');
+    document.getElementById('n-'+v).classList.add('active');
+}
+
+function setUser(u) {
+    curUser = u;
+    document.getElementById('f-jose').classList.toggle('active', u==='jose');
+    document.getElementById('f-desi').classList.toggle('active', u==='desi');
+}
+
+function getMonday(d) { d = new Date(d); const day = d.getDay(), diff = d.getDate() - day + (day == 0 ? -6 : 1); return new Date(d.setDate(diff)); }
+
+sync();
 </script>
 </body>
 </html>
