@@ -77,13 +77,18 @@
                 <option>Diezmo 🙏</option><option>Renta 🏠</option><option>Mercado 🛒</option>
                 <option>Eloy 👶</option><option>Camioneta (Ahorro) 🚘</option><option>TikTok Ads 📱</option>
             </optgroup>
+            <optgroup label="💰 Suscripciones">
+                <option>CapCut 🎬</option><option>Canva 🎨</option><option>Grok 🤖</option>
+                <option>Google ☁️</option><option>Ipsy 💄</option><option>Gym 🏋️</option>
+            </optgroup>
             <optgroup label="🏠 Servicios">
                 <option>Gasolina ⛽</option><option>Luz 💡</option><option>Agua Potable 💧</option>
                 <option>Agua Llave 🚿</option><option>Gas 🔥</option><option>Internet 🌐</option>
                 <option>Teléfono José 📞</option><option>Teléfono Desi 📞</option><option>Seguro Carro 🛡️</option><option>Lavado Carro 🧼</option>
             </optgroup>
             <optgroup label="💸 Variables">
-                <option>Estacionamiento 🅿️</option><option>Salidas Familiares 👨‍👩‍👧</option><option>Corte de Pelo ✂️</option>
+                <option>Estacionamiento 🅿️</option><option>Salidas Familiares 👨‍👩‍👧</option>
+                <option>Corte de Pelo ✂️</option><option>Chevy (Mantenimiento) 🚗</option>
             </optgroup>
         </select>
     </div>
@@ -147,7 +152,6 @@ const URL = "https://script.google.com/macros/s/AKfycbyBhXZ8n1O6fyXh4EGNXIJN8-Qi
 let db = { gastos:[], ingresos:[], agenda:[], habitos:[] };
 let curUser = 'jose', agUser = 'jose', regType = 'g';
 
-// Lista inicial corregida según tu petición
 let HABIT_DEF = JSON.parse(localStorage.getItem('habit_def')) || [
     {n: "Ajedrez Amelia", d:[1,2,3,4,5]},
     {n: "Gimnasio José", d:[1,2,3,4,5]},
@@ -183,7 +187,6 @@ function render() {
     sBar.style.width = Math.min(perc, 100)+'%';
     sBar.style.background = perc > 95 ? 'var(--danger)' : (perc > 80 ? 'var(--warn)' : 'var(--accent)');
 
-    // HÁBITOS
     const monday = getMonday(new Date()).toLocaleDateString('es-MX');
     document.getElementById('habit-list').innerHTML = HABIT_DEF.map(h => {
         const saved = db.habitos.find(x => x.habito === h.n && x.fecha_inicio === monday) || {};
@@ -207,7 +210,6 @@ function render() {
         `;
     }).join('');
 
-    // AGENDA
     const hoy = new Date(); hoy.setHours(0,0,0,0);
     const agHtml = db.agenda.filter(a => new Date(a.fecha) >= hoy).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha)).map(a => `
         <div class="ag-item ${a.persona.toLowerCase()}">
